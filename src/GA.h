@@ -1,9 +1,9 @@
 #ifndef __GA_H__
 #define __GA_H__
 
-#include "WindScenario.h"
-#include "KusiakLayoutEvaluator.h"
-#include "Matrix.hpp"
+#include "eval/WindScenario.h"
+#include "eval/KusiakLayoutEvaluator.h"
+#include "eval/Matrix.hpp"
 
 class GA {
   public:

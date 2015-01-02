@@ -5,9 +5,9 @@
 #include <iostream>
 #include <stdio.h>
 
-#include "WindScenario.h"
+#include "eval/WindScenario.h"
 #include "GA.h"
-#include "KusiakLayoutEvaluator.h"
+#include "eval/KusiakLayoutEvaluator.h"
 
 int main(int argc, const char * argv[]) {
 
