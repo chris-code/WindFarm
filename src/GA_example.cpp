@@ -11,7 +11,7 @@
 #include "eval/WindScenario.h"
 #include "eval/KusiakLayoutEvaluator.h"
 
-GA::GA( KusiakLayoutEvaluator evaluator ) {
+GA_example::GA_example( KusiakLayoutEvaluator evaluator ) {
 	wfle = evaluator;
 	num_pop = 20;
 	nt = 0;
@@ -21,13 +21,13 @@ GA::GA( KusiakLayoutEvaluator evaluator ) {
 	srand( time( NULL ) );
 }
 
-GA::~GA() {
+GA_example::~GA_example() {
 	delete[] fits;
 	delete pops;
 	delete grid;
 }
 
-void GA::evaluate() {
+void GA_example::evaluate() {
 	double maxfit = 0.0;
 	for ( int p=0; p<num_pop; p++ ) {
 		int nturbines=0;
@@ -68,7 +68,7 @@ void GA::evaluate() {
 	printf( "%f\n", maxfit );
 }
 
-void GA::run() {
+void GA_example::run() {
 
 	fits = new double[num_pop];
 

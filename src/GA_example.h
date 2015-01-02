@@ -5,7 +5,7 @@
 #include "eval/KusiakLayoutEvaluator.h"
 #include "eval/Matrix.hpp"
 
-class GA {
+class GA_example {
   public:
     KusiakLayoutEvaluator wfle;
     Matrix<int>* pops;
@@ -17,8 +17,8 @@ class GA {
     double cross_rate;
     Matrix<double>* grid;
 
-    GA(KusiakLayoutEvaluator evaluator);
-    ~GA();
+    GA_example(KusiakLayoutEvaluator evaluator);
+    ~GA_example();
     void run();
 
   private:

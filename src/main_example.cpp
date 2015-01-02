@@ -14,6 +14,6 @@ int main(int argc, const char * argv[]) {
   WindScenario wsc("Scenarios/obs_00.xml");
   KusiakLayoutEvaluator wfle;
   wfle.initialize(wsc);
-  GA ga(wfle);
+  GA_example ga(wfle);
   ga.run();
 }
