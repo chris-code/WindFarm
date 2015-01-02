@@ -3,33 +3,25 @@ CFLAGS =-Wall -std=c++11 -g
 OPTFLAGS=-O2
 INCLUDES=-I$(PWD)
 
-SRC_FOLDER=src
-COMPILE_FOLDER=compile
+PROGRAMS=eval_ga.o eval_example.o
+OBJECTS=compile/tinyxml2.o compile/WindScenario.o compile/WindFarmLayoutEvaluator.o compile/KusiakLayoutEvaluator.o
 
-SOURCES=$(SRC_FOLDER)/eval/tinyxml2.cpp $(SRC_FOLDER)/eval/WindScenario.cpp $(SRC_FOLDER)/eval/WindFarmLayoutEvaluator.cpp $(SRC_FOLDER)/eval/KusiakLayoutEvaluator.cpp $(SRC_FOLDER)/GA_example.cpp
-OBJECTS=$(COMPILE_FOLDER)/tinyxml2.o $(COMPILE_FOLDER)/WindScenario.o $(COMPILE_FOLDER)/WindFarmLayoutEvaluator.o $(COMPILE_FOLDER)/KusiakLayoutEvaluator.o $(COMPILE_FOLDER)/GA_example.o
+all:$(PROGRAMS)
 
-main_GA:$(OBJECTS)
-	$(CC) $(CFLAGS) -o eval_ga.o $(SRC_FOLDER)/GA.cpp $(OBJECTS) $(SRC_FOLDER)/main_ga.cpp $(INCLUDES) $(OPTFLAGS)
+eval_ga.o:$(OBJECTS)
+	$(CC) $(CFLAGS) $(OBJECTS) src/main_ga.cpp -o $@ src/GA.cpp $(INCLUDES) $(OPTFLAGS)
+eval_example.o:$(OBJECTS)
+	$(CC) $(CFLAGS) $(OBJECTS) src/GA_example.cpp src/main_example.cpp -o $@ $(INCLUDES) $(OPTFLAGS)
 
-main_example:$(OBJECTS)
-	$(CC) $(CFLAGS) -o eval_example.o $(OBJECTS) $(SRC_FOLDER)/main_example.cpp $(INCLUDES) $(OPTFLAGS)
-
-$(COMPILE_FOLDER)/tinyxml2.o:
-	$(CC) $(CFLAGS) -c $(SRC_FOLDER)/eval/tinyxml2.cpp -o $@ -w $(INCLUDES) $(OPTFLAGS)
-
-$(COMPILE_FOLDER)/WindScenario.o:
-	$(CC) $(CFLAGS) -c $(SRC_FOLDER)/eval/WindScenario.cpp -o $@ -w $(INCLUDES) $(OPTFLAGS)
-
-$(COMPILE_FOLDER)/WindFarmLayoutEvaluator.o:
-	$(CC) $(CFLAGS) -c $(SRC_FOLDER)/eval/WindFarmLayoutEvaluator.cpp -o $@ -w $(INCLUDES) $(OPTFLAGS)
-
-$(COMPILE_FOLDER)/KusiakLayoutEvaluator.o:
-	$(CC) $(CFLAGS) -c $(SRC_FOLDER)/eval/KusiakLayoutEvaluator.cpp -o $@ -w $(INCLUDES) $(OPTFLAGS)
-
-$(COMPILE_FOLDER)/GA_example.o:
-	$(CC) $(CFLAGS) -c $(SRC_FOLDER)/GA_example.cpp -o $@ -w $(INCLUDES) $(OPTFLAGS)
+compile/tinyxml2.o:
+	$(CC) $(CFLAGS) -c src/eval/tinyxml2.cpp -o $@ -w $(INCLUDES) $(OPTFLAGS)
+compile/WindScenario.o:
+	$(CC) $(CFLAGS) -c src/eval/WindScenario.cpp -o $@ -w $(INCLUDES) $(OPTFLAGS)
+compile/WindFarmLayoutEvaluator.o:
+	$(CC) $(CFLAGS) -c src/eval/WindFarmLayoutEvaluator.cpp -o $@ -w $(INCLUDES) $(OPTFLAGS)
+compile/KusiakLayoutEvaluator.o:
+	$(CC) $(CFLAGS) -c src/eval/KusiakLayoutEvaluator.cpp -o $@ -w $(INCLUDES) $(OPTFLAGS)
 
 clean:
 	rm $(OBJECTS) 2> /dev/null
-	rm eval_example.o eval_ga.o 2>/dev/null
+	rm $(PROGRAMS) 2>/dev/null
