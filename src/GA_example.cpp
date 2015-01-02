@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <time.h>
 
-#include "GA.h"
+#include "GA_example.h"
 #include "eval/WindScenario.h"
 #include "eval/KusiakLayoutEvaluator.h"
 

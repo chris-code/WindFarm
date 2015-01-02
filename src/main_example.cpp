@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "eval/WindScenario.h"
-#include "GA.h"
+#include "GA_example.h"
 #include "eval/KusiakLayoutEvaluator.h"
 
 int main(int argc, const char * argv[]) {
