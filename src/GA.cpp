@@ -80,19 +80,6 @@ Matrix<vector<double> > GA::generateGrid() {
 
 Matrix<char> GA::generateLayout() {
 	//TODO try equally spaced initialization (turbines in obstacles can be placed at the start)
-	/*long placedTurbines = 0;
-	Matrix<char> layout( grid.rows, grid.cols );
-	for ( long y = 0; y < grid.rows; ++y ) {
-		for ( long x = 0; x < grid.cols; ++x ) {
-			if ( isValidPosition( grid.get( y, x )[0], grid.get( y, x )[1] )
-			        && placedTurbines != numberOfTurbines ) {
-				layout.set( y, x, 1 );
-				++placedTurbines;
-			} else {
-				layout.set( y, x, 0 );
-			}
-		}
-	}*/
 	Matrix<char> layout( grid.rows, grid.cols );
 	for(long y=0; y<layout.rows; ++y) {
 		for(long x=0; x<layout.cols; ++x) {
