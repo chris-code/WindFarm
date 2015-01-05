@@ -35,7 +35,7 @@ void GA::run() {
 		Matrix<double> evalLayout = transformToEvalFormat( layout );
 		wfle.evaluate( &evalLayout );
 		cout << "Global WakeFreeRatio after " << wfle.getNumberOfEvaluation() << " evaluations: "
-		     << wfle.getWakeFreeRatio() << endl;
+				     << wfle.getWakeFreeRatio() << "(" << countInvalidTurbines(0.8) << " invalid turbines)" << endl;
 
 		long offspringCount = 10;
 		vector< pair<long, long> > parents = selectParents( evalLayout , 10 );
@@ -134,6 +134,22 @@ bool GA::isValidPosition( double posX, double posY ) {
 	return valid;
 }
 
+long GA::countInvalidTurbines(double threshold)
+{
+	long numberOfInvalidTurbines = 0;
+
+	Matrix<double> *turbineFitnesses = wfle.getTurbineFitnesses();
+
+	for (long i = 0; i < long(turbineFitnesses->rows); i++) {
+		if (turbineFitnesses->get(i,0) < threshold)
+			numberOfInvalidTurbines++;
+	}
+
+	delete turbineFitnesses;
+
+	return numberOfInvalidTurbines;
+}
+
 // this method is a comparator for (fitness value, index)-pairs
 bool compareFitnesses( pair<double, long> fit1, pair<double, long> fit2 ) {
 	// return true if the first pair is smaller than the second one
@@ -151,8 +167,8 @@ vector<pair<long, long> > GA::selectParents( Matrix<double> &evalLayout, long ho
 
 	vector<pair<double, long> > fitnessIndexPairs;
 
-	for ( long i = 0; i < ( long ) turbineFitnesses->rows; i++ )
-		fitnessIndexPairs.push_back( make_pair( turbineFitnesses->get( i, 0 ), i ) );
+	for (long i = 0; i < long(turbineFitnesses->rows); i++)
+		fitnessIndexPairs.push_back(make_pair(turbineFitnesses->get(i, 0), i));
 
 	sort( fitnessIndexPairs.begin(), fitnessIndexPairs.end(), compareFitnesses );
 
@@ -164,14 +180,14 @@ vector<pair<long, long> > GA::selectParents( Matrix<double> &evalLayout, long ho
 
 		double random = ( double( rand() ) / RAND_MAX ) * sumOfRanks;
 
-		for ( long i = 1; i <= long( fitnessIndexPairs.size() ); i++ ) {
-			if ( random < ( fitnessIndexPairs.size() ) - i ) {
-				long x = evalLayout.get( fitnessIndexPairs[i-1].second, 2 );
-				long y = evalLayout.get( fitnessIndexPairs[i-1].second, 3 );
+		for (long i = 0; i < long(fitnessIndexPairs.size()); i++) {
+			if (random < (fitnessIndexPairs.size()) - i) {
+				long x = evalLayout.get(fitnessIndexPairs[i].second, 2);
+				long y = evalLayout.get(fitnessIndexPairs[i].second, 3);
 
 				coordinates.push_back( make_pair( x,y ) );
 
-				fitnessIndexPairs.erase( fitnessIndexPairs.begin() + i - 1 );
+				fitnessIndexPairs.erase(fitnessIndexPairs.begin() + i);
 
 				break;
 			}
@@ -183,6 +199,7 @@ vector<pair<long, long> > GA::selectParents( Matrix<double> &evalLayout, long ho
 
 	return coordinates;
 }
+
 
 vector<Matrix<char> > GA::mate( long x, long y, long offspringCount ) {
 	srand( time( NULL ) ); //FIXME MOVE THIS
