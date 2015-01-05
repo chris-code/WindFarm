@@ -21,6 +21,7 @@ class GA {
 		Matrix< vector<double> > generateGrid();
 		Matrix<char> generateLayout();
 		bool isValidPosition( double posX, double posY );
+		vector<pair<long, long> > selectParents(Matrix<double>& evalLayout, long howMany);
 		vector< Matrix<char> > mate(Matrix<char> &layout, long x, long y, long offspringCount);
 		Matrix<double> transformToEvalFormat(Matrix<char> &layoutToTransform);
 };
