@@ -1,23 +1,23 @@
 #include <string>
 #include <stdlib.h>
-#include "GA.h"
-
 #include "eval/KusiakLayoutEvaluator.h"
+#include "GA.h"
 
 using namespace std;
 
 int main( int argc, char **argv ) {
-	string scenarioPath = "Scenarios/obs_00.xml";
-	if(argc >= 1 + 1) {
-		scenarioPath = argv[1];
+	if(argc < 2 + 1) {
+		cout << "Usage: " << argv[0] << " scenarioPath numberOfTurbines" << endl;
+		exit(EXIT_FAILURE);
 	}
-	
+	string scenarioPath = argv[1];
+	long numberOfTurbines = atoi(argv[2]);
 	
 	WindScenario ws( scenarioPath.c_str() );
 	KusiakLayoutEvaluator wfle;
 	wfle.initialize( ws );
 
-	GA ga( wfle );
+	GA ga( wfle, numberOfTurbines );
 	ga.run();
 
 	return EXIT_SUCCESS;

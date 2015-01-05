@@ -6,7 +6,7 @@ INCLUDES=-I$(PWD)
 PROGRAMS=eval_ga.o eval_example.o
 OBJECTS=compile/tinyxml2.o compile/WindScenario.o compile/WindFarmLayoutEvaluator.o compile/KusiakLayoutEvaluator.o
 
-all:$(PROGRAMS)
+programs:$(PROGRAMS)
 
 eval_ga.o:$(OBJECTS)
 	$(CC) $(CFLAGS) $(OBJECTS) src/main_ga.cpp -o $@ src/GA.cpp $(INCLUDES) $(OPTFLAGS)
@@ -23,5 +23,4 @@ compile/KusiakLayoutEvaluator.o:
 	$(CC) $(CFLAGS) -c src/eval/KusiakLayoutEvaluator.cpp -o $@ -w $(INCLUDES) $(OPTFLAGS)
 
 clean:
-	rm $(OBJECTS) 2> /dev/null
 	rm $(PROGRAMS) 2>/dev/null
