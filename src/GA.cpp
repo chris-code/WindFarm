@@ -40,7 +40,7 @@ void GA::run() {
 		long offspringCount = 10;
 		vector< pair<long, long> > parents = selectParents( evalLayout , 10 );
 		vector< Matrix<char> > newLayouts = mate( parents, offspringCount );
-		
+
 		double bestFitness = -1.0;
 		long bestLayoutIndex = -1;
 		for(long l=0; l<long(newLayouts.size()); ++l) {
@@ -80,7 +80,7 @@ Matrix<vector<double> > GA::generateGrid() {
 
 Matrix<char> GA::generateLayout() {
 	//TODO try equally spaced initialization (turbines in obstacles can be placed at the start)
-	long placedTurbines = 0;
+	/*long placedTurbines = 0;
 	Matrix<char> layout( grid.rows, grid.cols );
 	for ( long y = 0; y < grid.rows; ++y ) {
 		for ( long x = 0; x < grid.cols; ++x ) {
@@ -92,8 +92,26 @@ Matrix<char> GA::generateLayout() {
 				layout.set( y, x, 0 );
 			}
 		}
+	}*/
+	Matrix<char> layout( grid.rows, grid.cols );
+	for(long y=0; y<layout.rows; ++y) {
+		for(long x=0; x<layout.cols; ++x) {
+			layout.set(y, x, 0);
+		}
 	}
-
+	
+	srand(time(NULL));
+	long placedTurbines = 0;
+	while(placedTurbines < numberOfTurbines) {
+		long posX = rand() / double(RAND_MAX) * (layout.cols - 1);
+		long posY = rand() / double(RAND_MAX) * (layout.rows - 1);
+		while(layout.get(posY, posX) != 0) {
+			posX = rand() / double(RAND_MAX) * (layout.cols - 1);
+			posY = rand() / double(RAND_MAX) * (layout.rows - 1);
+		}
+		layout.set(posY, posX, 1);
+		++placedTurbines;
+	}
 	return layout;
 }
 
