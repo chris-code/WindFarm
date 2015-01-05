@@ -62,11 +62,11 @@ void GA::run() {
 		layout = newLayouts[bestLayout];
 		delete turbineFitnesses;*/
 		
-		//long offspringCount = 10;
-		//vector< pair<long, long> > parents = selectParents( evalLayout , 10 );
-		//vector< Matrix<char> > newLayouts = mate( parents, offspringCount );
+		long offspringCount = 10;
+		vector< pair<long, long> > parents = selectParents( evalLayout , 10 );
+		vector< Matrix<char> > newLayouts = mate( parents, offspringCount );
 		cout << "Global WakeFreeRatio after " << wfle.getNumberOfEvaluation() << " evaluations: "
-		     << wfle.getWakeFreeRatio() << endl;
+		     << wfle.getWakeFreeRatio() << "(" << countInvalidTurbines(0.8) << " invalid turbines)" << endl;
 	}
 }
 
@@ -131,6 +131,22 @@ bool GA::isValidPosition(double posX, double posY) {
 	return valid;
 }
 
+long GA::countInvalidTurbines(double threshold)
+{
+	long numberOfInvalidTurbines = 0;
+
+	Matrix<double> *turbineFitnesses = wfle.getTurbineFitnesses();
+
+	for (long i = 0; i < long(turbineFitnesses->rows); i++) {
+		if (turbineFitnesses->get(i,0) < threshold)
+			numberOfInvalidTurbines++;
+	}
+
+	delete turbineFitnesses;
+
+	return numberOfInvalidTurbines;
+}
+
 // this method is a comparator for (fitness value, index)-pairs
 bool compareFitnesses(pair<double, long> fit1, pair<double, long> fit2) {
 	// return true if the first pair is smaller than the second one
@@ -142,14 +158,14 @@ vector<pair<long, long> > GA::selectParents(Matrix<double> &evalLayout, long how
 	if (howMany > long(evalLayout.rows))
 	{
 		cerr << "You can't choose more parents than turbines exist." << endl;
-		exit(-1);
+		exit( EXIT_FAILURE );
 	}
 
 	Matrix<double> *turbineFitnesses = wfle.getTurbineFitnesses();
 
 	vector<pair<double, long> > fitnessIndexPairs;
 
-	for (long i = 0; i < (long) turbineFitnesses->rows; i++)
+	for (long i = 0; i < long(turbineFitnesses->rows); i++)
 		fitnessIndexPairs.push_back(make_pair(turbineFitnesses->get(i, 0), i));
 
 	sort(fitnessIndexPairs.begin(), fitnessIndexPairs.end(), compareFitnesses);
@@ -162,16 +178,14 @@ vector<pair<long, long> > GA::selectParents(Matrix<double> &evalLayout, long how
 
 		double random = (double(rand()) / RAND_MAX) * sumOfRanks;
 
-		for (long i = 1; i <= long(fitnessIndexPairs.size()); i++) {
+		for (long i = 0; i < long(fitnessIndexPairs.size()); i++) {
 			if (random < (fitnessIndexPairs.size()) - i) {
-				long x = evalLayout.get(fitnessIndexPairs[i-1].second, 2);
-				long y = evalLayout.get(fitnessIndexPairs[i-1].second, 3);
+				long x = evalLayout.get(fitnessIndexPairs[i].second, 2);
+				long y = evalLayout.get(fitnessIndexPairs[i].second, 3);
 
 				coordinates.push_back(make_pair(x,y));
 
-				fitnessIndexPairs.erase(fitnessIndexPairs.begin() + i - 1);
-
-				cout << "Turbine chosen as parent at (" << x << "," << y <<") with fitness" << fitnessIndexPairs[i-1].first << endl;
+				fitnessIndexPairs.erase(fitnessIndexPairs.begin() + i);
 
 				break;
 			}
@@ -184,54 +198,6 @@ vector<pair<long, long> > GA::selectParents(Matrix<double> &evalLayout, long how
 	return coordinates;
 }
 
-
-// Chrisbot-is-not-content version:
-//vector<pair<long, long> > GA::selectParents(Matrix<double>& evalLayout,
-//		long howMany) {
-//	if (howMany > long(evalLayout.rows))
-//	{
-//		cerr << "You can't choose more parents than turbines exist." << endl;
-//		exit(-1);
-//	}
-//
-//	Matrix<double> *turbineFitnesses = wfle.getTurbineFitnesses();
-//
-//	vector<pair<double, long> > fitnessIndexPairs;
-//
-//	for (long i = 0; i < (long) turbineFitnesses->rows; i++)
-//		fitnessIndexPairs.push_back(make_pair(turbineFitnesses->get(i, 0), i));
-//
-//	sort(fitnessIndexPairs.begin(), fitnessIndexPairs.end(), compareFitnesses);
-//
-//	vector<pair<long, long> > coordinates;
-//
-//	long index = 0;
-//
-//	while (long(coordinates.size()) < howMany) {
-//
-//		long x = evalLayout.get(fitnessIndexPairs[index].second, 2);
-//		long y = evalLayout.get(fitnessIndexPairs[index].second, 3);
-//
-//		bool alreadyChosen = false;
-//		for (long i = 0; i < long(coordinates.size()); i++) {
-//			if (coordinates[i].first == x && coordinates[i].second == y)
-//				alreadyChosen = true;
-//		}
-//		if (alreadyChosen == true)
-//			continue;
-//
-//		double probability = 1 - (index / double(fitnessIndexPairs.size()));
-//
-//		if ((rand() / RAND_MAX) < probability)
-//			coordinates.push_back(make_pair(x, y));
-//
-//		index = (index + 1) % coordinates.size();
-//	}
-//
-//	delete turbineFitnesses;
-//
-//	return coordinates;
-//}
 
 vector<Matrix<char> > GA::mate(long x, long y, long offspringCount) {
 	srand(time(NULL)); //FIXME MOVE THIS

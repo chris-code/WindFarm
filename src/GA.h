@@ -21,6 +21,7 @@ class GA {
 		Matrix< vector<double> > generateGrid();
 		Matrix<char> generateLayout();
 		bool isValidPosition( double posX, double posY );
+		long countInvalidTurbines(double threshold);
 		vector<pair<long, long> > selectParents(Matrix<double> &evalLayout, long howMany);
 		vector< Matrix<char> > mate(long x, long y, long offspringCount);
 		vector< Matrix<char> > mate(vector< pair<long, long> > turbines, long offspringCount);
