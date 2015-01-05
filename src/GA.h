@@ -16,11 +16,11 @@ class GA {
 		WindFarmLayoutEvaluator &wfle;
 		long numberOfTurbines;
 		Matrix< vector<double> > grid;
-		//Matrix<char> layout; //TODO don't use char
+		Matrix<char> layout; //TODO don't use char
 
 		Matrix< vector<double> > generateGrid();
 		Matrix<char> generateLayout();
 		bool isValidPosition( double posX, double posY );
-		vector< Matrix<char> > mate(Matrix<char> &layout, long x, long y, long offspringCount);
+		vector< Matrix<char> > mate(long x, long y, long offspringCount);
 		Matrix<double> transformToEvalFormat(Matrix<char> &layoutToTransform);
 };

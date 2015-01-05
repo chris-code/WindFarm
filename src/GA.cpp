@@ -23,37 +23,47 @@ GA::GA( WindFarmLayoutEvaluator &wfleInput, long numberOfTurbines ):
 	this->numberOfTurbines = numberOfTurbines;
 
 	grid = generateGrid();
-	//layout = generateLayout();
+	layout = generateLayout();
 }
 
 GA::~GA() {
 }
 
 void GA::run() {
-	Matrix<char> layout = generateLayout();
-	Matrix<double> evalLayout = transformToEvalFormat(layout);
-	wfle.evaluate(&evalLayout);
+	Matrix<double> evalLayout = transformToEvalFormat( layout );
+	wfle.evaluate( &evalLayout );
 	cout << "Global WakeFreeRatio: " << wfle.getWakeFreeRatio() << endl;
-	
+
 //	Mutate the worst turbine
-	Matrix<double> *turbineFitnesses = wfle.getTurbineFitnesses();
-	double worstValue = turbineFitnesses->get(0, 0);
-	long worstXindex = evalLayout.get(0, 2);
-	long worstYindex = evalLayout.get(0, 3);
-	for( long t=1; t<turbineFitnesses->rows; ++t ) {
-		if( turbineFitnesses->get(t, 0) < worstValue ) {
-			worstValue = turbineFitnesses->get(t, 0);
-			worstXindex = evalLayout.get(t, 2);
-			worstYindex = evalLayout.get(t, 3);
+	while( true ) {
+		Matrix<double> *turbineFitnesses = wfle.getTurbineFitnesses();
+		double worstValue = turbineFitnesses->get( 0, 0 );
+		long worstXindex = evalLayout.get( 0, 2 );
+		long worstYindex = evalLayout.get( 0, 3 );
+		for( long t=1; t<turbineFitnesses->rows; ++t ) {
+			if( turbineFitnesses->get( t, 0 ) < worstValue ) {
+				worstValue = turbineFitnesses->get( t, 0 );
+				worstXindex = evalLayout.get( t, 2 );
+				worstYindex = evalLayout.get( t, 3 );
+			}
 		}
+
+		double bestFitness = 0;
+		long bestLayout = -1;
+		vector< Matrix<char> > newLayouts = mate( worstXindex, worstYindex, 1 );
+		for( long l=0; l<long( newLayouts.size() ); ++l ) {
+			evalLayout = transformToEvalFormat( newLayouts[l] );
+			wfle.evaluate( &evalLayout );
+			if( wfle.getWakeFreeRatio() > bestFitness ) {
+				bestFitness = wfle.getWakeFreeRatio();
+				bestLayout = l;
+			}
+		}
+		layout = newLayouts[bestLayout];
+		delete turbineFitnesses;
+		cout << "Global WakeFreeRatio after " << wfle.getNumberOfEvaluation() << " evaluations: "
+		     << wfle.getWakeFreeRatio() << endl;
 	}
-	vector< Matrix<char> > newLayouts = mate(layout, worstXindex, worstYindex, 3);
-	for( long l=0; l<long(newLayouts.size()); ++l ) {
-		evalLayout = transformToEvalFormat(newLayouts[l]);
-		wfle.evaluate(&evalLayout);
-		cout << "Wlobal WakeFreeRatio: " << wfle.getWakeFreeRatio() << endl;
-	}
-	delete turbineFitnesses;
 }
 
 //==================== Private members ====================
@@ -115,37 +125,37 @@ bool GA::isValidPosition( double posX, double posY ) {
 	return valid;
 }
 
-vector< Matrix<char> > GA::mate(Matrix<char> &layout, long x, long y, long offspringCount) {
-	srand(time(NULL)); //FIXME MOVE THIS
+vector< Matrix<char> > GA::mate( long x, long y, long offspringCount ) {
+	srand( time( NULL ) ); //FIXME MOVE THIS
 	vector< Matrix<char> > newLayouts;
 	for( long o = 0; o < offspringCount; ++o ) {
-		Matrix<char> newLayout(layout);
-		
-		long newX = (rand() / RAND_MAX) * (layout.cols - 1);
-		long newY = (rand() / RAND_MAX) * (layout.rows - 1);
-		while( layout.get(newY, newX) != 0 ) {
-			newX = (rand() / double(RAND_MAX)) * (layout.cols - 1);
-			newY = (rand() / double(RAND_MAX)) * (layout.rows - 1);
+		Matrix<char> newLayout( layout );
+
+		long newX = ( rand() / RAND_MAX ) * ( layout.cols - 1 );
+		long newY = ( rand() / RAND_MAX ) * ( layout.rows - 1 );
+		while( layout.get( newY, newX ) != 0 ) {
+			newX = ( rand() / double( RAND_MAX ) ) * ( layout.cols - 1 );
+			newY = ( rand() / double( RAND_MAX ) ) * ( layout.rows - 1 );
 		}
-		newLayout.set(y, x, 0);
-		newLayout.set(newY, newX, 1);
-		
-		newLayouts.push_back(newLayout);
+		newLayout.set( y, x, 0 );
+		newLayout.set( newY, newX, 1 );
+
+		newLayouts.push_back( newLayout );
 	}
 	return newLayouts;
 }
 
 //	TODO describe the format of the returned matrix
-Matrix<double> GA::transformToEvalFormat(Matrix<char> &layoutToTransform) {
+Matrix<double> GA::transformToEvalFormat( Matrix<char> &layoutToTransform ) {
 	long transformedTurbines = 0;
-	Matrix<double> evalLayout(numberOfTurbines, 4);
+	Matrix<double> evalLayout( numberOfTurbines, 4 );
 	for( long y=0; y<grid.rows; ++y ) {
 		for( long x=0; x<grid.cols; ++x ) {
-			if( layoutToTransform.get(y, x) == 1 ) {
-				evalLayout.set(transformedTurbines, 0, grid.get(y, x)[0]);
-				evalLayout.set(transformedTurbines, 1, grid.get(y, x)[1]);
-				evalLayout.set(transformedTurbines, 2, x);
-				evalLayout.set(transformedTurbines, 3, y);
+			if( layoutToTransform.get( y, x ) == 1 ) {
+				evalLayout.set( transformedTurbines, 0, grid.get( y, x )[0] );
+				evalLayout.set( transformedTurbines, 1, grid.get( y, x )[1] );
+				evalLayout.set( transformedTurbines, 2, x );
+				evalLayout.set( transformedTurbines, 3, y );
 				++transformedTurbines;
 			}
 		}
