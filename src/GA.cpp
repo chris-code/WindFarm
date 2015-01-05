@@ -30,13 +30,12 @@ GA::~GA() {
 }
 
 void GA::run() {
-	Matrix<double> evalLayout = transformToEvalFormat( layout );
-	wfle.evaluate( &evalLayout );
-	cout << "Global WakeFreeRatio: " << wfle.getWakeFreeRatio() << endl;
-
-//	Mutate the worst turbine
 	while( true ) {
-		Matrix<double> *turbineFitnesses = wfle.getTurbineFitnesses();
+		Matrix<double> evalLayout = transformToEvalFormat( layout );
+		wfle.evaluate( &evalLayout );
+		cout << "Global WakeFreeRatio: " << wfle.getWakeFreeRatio() << endl;
+
+		/*Matrix<double> *turbineFitnesses = wfle.getTurbineFitnesses();
 		double worstValue = turbineFitnesses->get( 0, 0 );
 		long worstXindex = evalLayout.get( 0, 2 );
 		long worstYindex = evalLayout.get( 0, 3 );
@@ -60,7 +59,11 @@ void GA::run() {
 			}
 		}
 		layout = newLayouts[bestLayout];
-		delete turbineFitnesses;
+		delete turbineFitnesses;*/
+		
+		vector< pair<long, long> parents = selectParents( &evalLayout , 10 );
+		vector< Matrix<char> > newLayouts = mate( parents,
+		                                    long offspringCount );
 		cout << "Global WakeFreeRatio after " << wfle.getNumberOfEvaluation() << " evaluations: "
 		     << wfle.getWakeFreeRatio() << endl;
 	}
@@ -143,6 +146,16 @@ vector< Matrix<char> > GA::mate( long x, long y, long offspringCount ) {
 		newLayouts.push_back( newLayout );
 	}
 	return newLayouts;
+}
+
+vector< Matrix<char> > mate( vector< pair<long, long> > turbines, long offspringCount ) {
+	vector< Matrix<char> > offspringPopulation;
+	for( long o=0; o<offspringCount; ++o) {
+		Matrix<char> offspring(layout);
+		offspringPopulation.push_back(offspring);
+	}
+	
+	return offspringPopulation;
 }
 
 //	TODO describe the format of the returned matrix

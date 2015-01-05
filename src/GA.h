@@ -22,5 +22,6 @@ class GA {
 		Matrix<char> generateLayout();
 		bool isValidPosition( double posX, double posY );
 		vector< Matrix<char> > mate(long x, long y, long offspringCount);
+		vector< Matrix<char> > mate(vector< pair<long, long> > turbines, long offspringCount);
 		Matrix<double> transformToEvalFormat(Matrix<char> &layoutToTransform);
 };
