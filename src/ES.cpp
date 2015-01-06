@@ -95,24 +95,20 @@ void ES::run() {
 }
 
 void ES::evaluate() {
-	double validTurbines = 0.0;
-
 	double fitness = wfle.evaluate(&posTurbines);
 
+	double validTurbines = 0.0;
 	Matrix<double> *fitnesses = wfle.getTurbineFitnesses();
-
 	for (int i = 0; i < numTurbines; i++) {
 		if (fitnesses->get(i, 0) > validityThreshold) {
 			validTurbines++;
 		}
 	}
-
 	delete fitnesses;
 
 	if (wfle.getNumberOfEvaluation() % 10 == 1)
-		cout << "Valid turbines after " << wfle.getNumberOfEvaluation()
-				<< " iterations: " << validTurbines << " with fitness "
-				<< fitness << endl;
+		cout << "Iteration " << wfle.getNumberOfEvaluation() << ":\t" << validTurbines
+		<< " valid turbines, global wake free ratio:\t" << fitness << endl;
 }
 
 double ES::randInt(double from, double to) {
