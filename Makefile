@@ -7,7 +7,7 @@ PROGRAMS=eval_ga.o eval_es.o eval_example.o
 OBJECTS=compile/tinyxml2.o compile/WindScenario.o compile/WindFarmLayoutEvaluator.o compile/KusiakLayoutEvaluator.o
 
 all:$(PROGRAMS)
-.PHONY:$(PROGRAMS)
+.PHONY:eval_ga.o eval_es.o
 
 eval_ga.o:$(OBJECTS)
 	$(CC) $(CFLAGS) $(OBJECTS) src/main_ga.cpp -o $@ src/GA.cpp $(INCLUDES) $(OPTFLAGS)
