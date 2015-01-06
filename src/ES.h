@@ -7,10 +7,9 @@
 #include "eval/KusiakLayoutEvaluator.h"
 #include "eval/Matrix.hpp"
 
-
 class ES {
 public:
-	ES(KusiakLayoutEvaluator& evaluator, short numTurbines = 100);
+	ES(KusiakLayoutEvaluator& evaluator, short numTurbines, float validityThreshold);
 	virtual ~ES();
 
 	bool checkTurbine(double posX, double posY, short turbinesCounter, short ignoreIndex = -1 );
@@ -31,5 +30,6 @@ private:
 	KusiakLayoutEvaluator& wfle;
 	Matrix<double> mutMat;
 	short numTurbines;
+	float validityThreshold;
 	Matrix<double> posTurbines;
 };

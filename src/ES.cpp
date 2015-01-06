@@ -1,9 +1,10 @@
 #include "ES.h"
 
-ES::ES(KusiakLayoutEvaluator& evaluator, short numTurbines) :
+ES::ES(KusiakLayoutEvaluator& evaluator, short numTurbines, float validityThreshold) :
 		wfle(evaluator) {
 	this->numTurbines = numTurbines;
 	this->posTurbines = Matrix<double>(numTurbines, 2);
+	this->validityThreshold = validityThreshold;
 
 	gridAnchorX = 0;
 	gridAnchorY = 0;
@@ -76,7 +77,7 @@ void ES::run() {
 		Matrix<double> *fitnesses = wfle.getTurbineFitnesses();
 
 		for (short j = 0; j < numTurbines; j++) {
-			if (fitnesses->get(j, 0) < 0.85) {
+			if (fitnesses->get(j, 0) < validityThreshold) {
 				double newPosX = posTurbines(j, 0) + randInt(-100, 100);
 				double newPosY = posTurbines(j, 1) + randInt(-100, 100);
 
@@ -101,14 +102,14 @@ void ES::evaluate() {
 	Matrix<double> *fitnesses = wfle.getTurbineFitnesses();
 
 	for (int i = 0; i < numTurbines; i++) {
-		if (fitnesses->get(i, 0) > 0.85) {
+		if (fitnesses->get(i, 0) > validityThreshold) {
 			validTurbines++;
 		}
 	}
 
 	delete fitnesses;
 
-	if (wfle.getNumberOfEvaluation() % 10 == 0)
+	if (wfle.getNumberOfEvaluation() % 10 == 1)
 		cout << "Valid turbines after " << wfle.getNumberOfEvaluation()
 				<< " iterations: " << validTurbines << " with fitness "
 				<< fitness << endl;
