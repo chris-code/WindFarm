@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <chrono>
 #include "ES.h"
 
 ES::ES(KusiakLayoutEvaluator& evaluator, short numTurbines, float validityThreshold) :
@@ -12,7 +13,8 @@ ES::ES(KusiakLayoutEvaluator& evaluator, short numTurbines, float validityThresh
 	gridWidth = wfle.scenario.width;
 	gridHeight = wfle.scenario.height;
 	
-	randomEngine = default_random_engine();
+	long seed = chrono::system_clock::now().time_since_epoch().count();
+	randomEngine = default_random_engine(seed);
 }
 
 ES::~ES() {
