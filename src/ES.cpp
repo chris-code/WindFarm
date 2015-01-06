@@ -2,7 +2,7 @@
 #include <chrono>
 #include "ES.h"
 
-ES::ES(KusiakLayoutEvaluator& evaluator, short numTurbines, float validityThreshold) :
+ES::ES(WindFarmLayoutEvaluator& evaluator, short numTurbines, float validityThreshold) :
 		wfle(evaluator) {
 	this->numTurbines = numTurbines;
 	this->posTurbines = Matrix<double>(numTurbines, 2);
@@ -10,8 +10,8 @@ ES::ES(KusiakLayoutEvaluator& evaluator, short numTurbines, float validityThresh
 
 	gridAnchorX = 0;
 	gridAnchorY = 0;
-	gridWidth = wfle.scenario.width;
-	gridHeight = wfle.scenario.height;
+	gridWidth = dynamic_cast<KusiakLayoutEvaluator*>(&wfle)->scenario.width;
+	gridHeight = dynamic_cast<KusiakLayoutEvaluator*>(&wfle)->scenario.height;
 	
 	long seed = chrono::system_clock::now().time_since_epoch().count();
 	randomEngine = default_random_engine(seed);
@@ -20,21 +20,20 @@ ES::ES(KusiakLayoutEvaluator& evaluator, short numTurbines, float validityThresh
 ES::~ES() {
 }
 
-bool ES::checkTurbine(double posX, double posY, short turbinesCounter,
+bool ES::checkTurbinePosition(double posX, double posY, short turbinesCounter,
 		short ignoreIndex) {
 	// check whether posX and posY are within the range of the grid
-	if (posX < gridAnchorX || posY < gridAnchorY
-			|| posX > gridAnchorX + gridWidth
+	if (posX < gridAnchorX || posY < gridAnchorY || posX > gridAnchorX + gridWidth
 			|| posY > gridAnchorY + gridHeight)
 		return false;
 
 	// check whether turbine is not within an obstacle
-	for (unsigned int o = 0; o < wfle.scenario.obstacles.rows; o++) {
-		double xmin = wfle.scenario.obstacles.get(o, 0);
-		double ymin = wfle.scenario.obstacles.get(o, 1);
-		double xmax = wfle.scenario.obstacles.get(o, 2);
-		double ymax = wfle.scenario.obstacles.get(o, 3);
-
+	KusiakLayoutEvaluator *kusiakPointer = dynamic_cast<KusiakLayoutEvaluator*>(&wfle);
+	for (unsigned int o = 0; o < kusiakPointer->scenario.obstacles.rows; o++) {
+		double xmin = kusiakPointer->scenario.obstacles.get(o, 0);
+		double ymin = kusiakPointer->scenario.obstacles.get(o, 1);
+		double xmax = kusiakPointer->scenario.obstacles.get(o, 2);
+		double ymax = kusiakPointer->scenario.obstacles.get(o, 3);
 		if (posX > xmin && posY > ymin && posX < xmax && posY < ymax) {
 			return false;
 		}
@@ -44,10 +43,8 @@ bool ES::checkTurbine(double posX, double posY, short turbinesCounter,
 	for (long i = 0; i < turbinesCounter; i++) {
 		if (i == ignoreIndex)
 			continue;
-		double dist = sqrt(
-				pow(posX - posTurbines(i, 0), 2)
-						+ pow(posY - posTurbines(i, 1), 2));
-		if (dist <= 8 * wfle.scenario.R) {
+		double dist = sqrt(pow(posX - posTurbines(i, 0), 2) + pow(posY - posTurbines(i, 1), 2));
+		if (dist <= 8 * kusiakPointer->scenario.R) {
 			return false;
 		}
 	}
@@ -67,16 +64,32 @@ void ES::countInvalidTurbines() {
 }
 
 void ES::setRandomTurbines() {
+	long turbinesCounter = 0;
+	
+	// Try to equally space turbines
+	float equalSpacingDistance = sqrt(gridWidth * gridHeight / double(numTurbines));
+	for(float posY = 0; posY < gridHeight; posY += equalSpacingDistance * 1.5) {
+		for(float posX = 0; posX < gridWidth; posX += equalSpacingDistance * 1.5) {
+			if(turbinesCounter == numTurbines) {
+				return;
+			}
+			if (checkTurbinePosition(posX, posY, turbinesCounter)) {
+				posTurbines.set(turbinesCounter, 0, posX);
+				posTurbines.set(turbinesCounter, 1, posY);
+				++turbinesCounter;
+			}
+		}
+	}
+	
+	// Place leftover turbines randomly
 	uniform_int_distribution<long> randomPosX(gridAnchorX, gridAnchorX + gridWidth);
 	uniform_int_distribution<long> randomPosY(gridAnchorY, gridAnchorY + gridHeight);
-	
-	long turbinesCounter = 0;
 	while (turbinesCounter < numTurbines) {
 		// create turbine at random position
 		double posX = randomPosX(randomEngine);
 		double posY = randomPosY(randomEngine);
 
-		if (checkTurbine(posX, posY, turbinesCounter)) {
+		if (checkTurbinePosition(posX, posY, turbinesCounter)) {
 			posTurbines.set(turbinesCounter, 0, posX);
 			posTurbines.set(turbinesCounter, 1, posY);
 
@@ -148,7 +161,7 @@ void ES::mutateTurbines() {
 	for (auto p: parents) {
 		double newPosX = posTurbines(p, 0) + turbineMoveDistribution(randomEngine);
 			double newPosY = posTurbines(p, 1) + turbineMoveDistribution(randomEngine);
-			if (checkTurbine(newPosX, newPosY, numTurbines, p)) {
+			if (checkTurbinePosition(newPosX, newPosY, numTurbines, p)) {
 				posTurbines(p, 0) = newPosX;
 				posTurbines(p, 1) = newPosY;
 			}

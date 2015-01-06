@@ -4,16 +4,17 @@
 #include <iostream>
 
 #include "eval/KusiakLayoutEvaluator.h"
+#include "eval/WindFarmLayoutEvaluator.h"
 #include "eval/Matrix.hpp"
 
 using namespace std;
 
 class ES {
 public:
-	ES(KusiakLayoutEvaluator& evaluator, short numTurbines, float validityThreshold);
+	ES(WindFarmLayoutEvaluator& evaluator, short numTurbines, float validityThreshold);
 	virtual ~ES();
 
-	bool checkTurbine(double posX, double posY, short turbinesCounter, short ignoreIndex = -1 );
+	bool checkTurbinePosition(double posX, double posY, short turbinesCounter, short ignoreIndex = -1 );
 	void countInvalidTurbines();
 	void setRandomTurbines();
 
@@ -22,7 +23,7 @@ public:
 	void mutateTurbines();
 	void run();
 private:
-	KusiakLayoutEvaluator& wfle;
+	WindFarmLayoutEvaluator& wfle;
 	double gridAnchorX;
 	double gridAnchorY;
 	double gridWidth;
