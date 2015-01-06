@@ -1,11 +1,12 @@
 #pragma once
 
-#include <vector>
-#include <cstdlib>
-#include <stdlib.h>
+#include <random>
+#include <iostream>
 
 #include "eval/KusiakLayoutEvaluator.h"
 #include "eval/Matrix.hpp"
+
+using namespace std;
 
 class ES {
 public:
@@ -15,21 +16,20 @@ public:
 	bool checkTurbine(double posX, double posY, short turbinesCounter, short ignoreIndex = -1 );
 	void setRandomTurbines();
 
-	void run();
 	void evaluate();
-
-	// HELPER FUNCTIONS, MAY BE MOVED TO AN INDEPENDENT CLASS
-	double randInt(double from, double to);
-
+	void mutateTurbines();
+	void run();
 private:
+	KusiakLayoutEvaluator& wfle;
 	double gridAnchorX;
 	double gridAnchorY;
 	double gridWidth;
 	double gridHeight;
-
-	KusiakLayoutEvaluator& wfle;
-	Matrix<double> mutMat;
+	
 	short numTurbines;
-	float validityThreshold;
 	Matrix<double> posTurbines;
+	float validityThreshold;
+
+	default_random_engine randomEngine;
+	float turbineMoveDistanceStandardDeviation = 70.0;
 };
