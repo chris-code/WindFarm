@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "ES.h"
 
 ES::ES(KusiakLayoutEvaluator& evaluator, short numTurbines, float validityThreshold) :
@@ -11,7 +12,7 @@ ES::ES(KusiakLayoutEvaluator& evaluator, short numTurbines, float validityThresh
 	gridWidth = wfle.scenario.width;
 	gridHeight = wfle.scenario.height;
 	
-	randomEngine = default_random_engine(); //TODO needs initialization?
+	randomEngine = default_random_engine();
 }
 
 ES::~ES() {
@@ -52,6 +53,17 @@ bool ES::checkTurbine(double posX, double posY, short turbinesCounter,
 	return true;
 }
 
+void ES::countInvalidTurbines() {
+	numberOfInvalidTurbines = 0;
+	Matrix<double> *fitnesses = wfle.getTurbineFitnesses();
+	for (int i = 0; i < numTurbines; i++) {
+		if (fitnesses->get(i, 0) <= validityThreshold) {
+			++numberOfInvalidTurbines;
+		}
+	}
+	delete fitnesses;
+}
+
 void ES::setRandomTurbines() {
 	uniform_int_distribution<long> randomPosX(gridAnchorX, gridAnchorX + gridWidth);
 	uniform_int_distribution<long> randomPosY(gridAnchorY, gridAnchorY + gridHeight);
@@ -73,24 +85,20 @@ void ES::setRandomTurbines() {
 
 void ES::evaluate() {
 	double fitness = wfle.evaluate(&posTurbines);
-
-	long validTurbines = 0;
-	Matrix<double> *fitnesses = wfle.getTurbineFitnesses();
-	for (int i = 0; i < numTurbines; i++) {
-		if (fitnesses->get(i, 0) > validityThreshold) {
-			++validTurbines;
-		}
-	}
-	delete fitnesses;
+	countInvalidTurbines();
 
 	if (wfle.getNumberOfEvaluation() % 10 == 1 || wfle.getNumberOfEvaluation() == 1000)
-		cout << "Iteration " << wfle.getNumberOfEvaluation() << ":\t" << validTurbines
-		<< " valid turbines, global wake free ratio:\t" << fitness << endl;
+		cout << "Iteration " << wfle.getNumberOfEvaluation() << ":\t" << numberOfInvalidTurbines
+		<< " invalid turbines, global wake free ratio:\t" << fitness << endl;
+}
+
+bool compareFitness( pair<double, long> fitness1, pair<double, long> fitness2 ) {
+	// return true if the first pair is smaller than the second one
+	return fitness1.first > fitness2.first; // We want the highest fitness to have the lowest rank
 }
 
 vector<long> ES::selectParents() {
 	vector<long> parents;
-	
 	Matrix<double> *fitnesses = wfle.getTurbineFitnesses();
 	for (long t=0; t<fitnesses->rows; ++t) {
 		if(fitnesses->get(t, 0) < validityThreshold) {
@@ -100,6 +108,35 @@ vector<long> ES::selectParents() {
 	delete fitnesses;
 	
 	return parents;
+	
+	/*uniform_int_distribution<long> randomSelector(1, numTurbines * (numTurbines + 1) / 2);
+	
+	Matrix<double> *fitnesses = wfle.getTurbineFitnesses();
+	vector< pair<double, long> > sortedFitnesses;
+	for (long t=0; t<fitnesses->rows; ++t) {
+		sortedFitnesses.push_back( make_pair(fitnesses->get(t, 0), t) );
+	}
+	delete fitnesses;
+	sort(sortedFitnesses.begin(), sortedFitnesses.end(), compareFitness);
+	
+	long additionalParentCount = 5;
+	vector<long> parents;
+	for(long p = numTurbines; p > numTurbines - numberOfInvalidTurbines; --p) {
+		parents.push_back(sortedFitnesses[p-1].second);
+	}
+	
+	for(long p = 0; p < additionalParentCount; ++p) {
+		long randomValue = randomSelector(randomEngine);
+		for(long v = 1; v <= numTurbines; ++v) {
+			long g = v * (v + 1) / 2;
+			if(randomValue <= g) {
+				parents.push_back(sortedFitnesses[v-1].second);
+				break;
+			}
+		}
+	}
+	
+	return parents;*/
 }
 
 void ES::mutateTurbines() {

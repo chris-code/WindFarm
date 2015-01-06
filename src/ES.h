@@ -14,6 +14,7 @@ public:
 	virtual ~ES();
 
 	bool checkTurbine(double posX, double posY, short turbinesCounter, short ignoreIndex = -1 );
+	void countInvalidTurbines();
 	void setRandomTurbines();
 
 	void evaluate();
@@ -30,6 +31,7 @@ private:
 	short numTurbines;
 	Matrix<double> posTurbines;
 	float validityThreshold;
+	long numberOfInvalidTurbines;
 
 	default_random_engine randomEngine;
 	float turbineMoveDistanceStandardDeviation = 70.0;
