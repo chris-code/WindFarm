@@ -62,19 +62,12 @@ void ES::setRandomTurbines() {
 			posTurbines.set(turbinesCounter, 1, posY);
 
 			turbinesCounter++;
-			cout << "Turbines counter: " << turbinesCounter << endl;
 		}
 	}
 }
 
 void ES::run() {
 	setRandomTurbines();
-
-	cout << "Initial turbine positions:" << endl;
-	for (int i = 0; i < numTurbines; i++)
-		cout << "(" << posTurbines(i, 0) << ":" << posTurbines(i, 1) << ")"
-				<< endl;
-	cout << endl;
 
 	evaluate();
 
@@ -83,7 +76,7 @@ void ES::run() {
 		Matrix<double> *fitnesses = wfle.getTurbineFitnesses();
 
 		for (short j = 0; j < numTurbines; j++) {
-			if (fitnesses->get(j, 0) < 0.9) {
+			if (fitnesses->get(j, 0) < 0.85) {
 				double newPosX = posTurbines(j, 0) + randInt(-100, 100);
 				double newPosY = posTurbines(j, 1) + randInt(-100, 100);
 
@@ -108,7 +101,7 @@ void ES::evaluate() {
 	Matrix<double> *fitnesses = wfle.getTurbineFitnesses();
 
 	for (int i = 0; i < numTurbines; i++) {
-		if (fitnesses->get(i, 0) > 0.80) {
+		if (fitnesses->get(i, 0) > 0.85) {
 			validTurbines++;
 		}
 	}
@@ -117,8 +110,8 @@ void ES::evaluate() {
 
 	if (wfle.getNumberOfEvaluation() % 10 == 0)
 		cout << "Valid turbines after " << wfle.getNumberOfEvaluation()
-				<< " iterations: " << validTurbines << " with fitness " << fitness
-				<< endl;
+				<< " iterations: " << validTurbines << " with fitness "
+				<< fitness << endl;
 }
 
 double ES::randInt(double from, double to) {

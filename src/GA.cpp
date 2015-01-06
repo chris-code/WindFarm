@@ -35,7 +35,7 @@ void GA::run() {
 		Matrix<double> evalLayout = transformToEvalFormat( layout );
 		wfle.evaluate( &evalLayout );
 		cout << "Global WakeFreeRatio after " << wfle.getNumberOfEvaluation() << " evaluations: "
-				     << wfle.getWakeFreeRatio() << "(" << countInvalidTurbines(0.8) << " invalid turbines)" << endl;
+				     << wfle.getWakeFreeRatio() << " (" << countInvalidTurbines(0.8) << " invalid turbines)" << endl;
 
 		long offspringCount = 10;
 		vector< pair<long, long> > parents = selectParents( evalLayout , 10 );
