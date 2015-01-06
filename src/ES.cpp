@@ -38,7 +38,7 @@ bool ES::checkTurbine(double posX, double posY, short turbinesCounter,
 	}
 
 	// check whether turbine is not to close to an other turbine
-	for (short i = 0; i < turbinesCounter; i++) {
+	for (long i = 0; i < turbinesCounter; i++) {
 		if (i == ignoreIndex)
 			continue;
 		double dist = sqrt(
@@ -56,7 +56,7 @@ void ES::setRandomTurbines() {
 	uniform_int_distribution<long> randomPosX(gridAnchorX, gridAnchorX + gridWidth);
 	uniform_int_distribution<long> randomPosY(gridAnchorY, gridAnchorY + gridHeight);
 	
-	short turbinesCounter = 0;
+	long turbinesCounter = 0;
 	while (turbinesCounter < numTurbines) {
 		// create turbine at random position
 		double posX = randomPosX(randomEngine);
@@ -83,7 +83,7 @@ void ES::evaluate() {
 	}
 	delete fitnesses;
 
-	if (wfle.getNumberOfEvaluation() % 10 == 1)
+	if (wfle.getNumberOfEvaluation() % 10 == 1 || wfle.getNumberOfEvaluation() == 1000)
 		cout << "Iteration " << wfle.getNumberOfEvaluation() << ":\t" << validTurbines
 		<< " valid turbines, global wake free ratio:\t" << fitness << endl;
 }
@@ -120,7 +120,7 @@ void ES::run() {
 	setRandomTurbines();
 	
 	// 1000 evaluations
-	for (int i = 0; i < 1000; i++) {
+	for (long i = 0; i < 1000; i++) {
 		evaluate();
 		mutateTurbines();
 	}
