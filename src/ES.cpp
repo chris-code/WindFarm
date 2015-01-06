@@ -88,21 +88,32 @@ void ES::evaluate() {
 		<< " valid turbines, global wake free ratio:\t" << fitness << endl;
 }
 
-void ES::mutateTurbines() {
-	normal_distribution<float> turbineMoveDistribution(0, turbineMoveDistanceStandardDeviation);
+vector<long> ES::selectParents() {
+	vector<long> parents;
 	
 	Matrix<double> *fitnesses = wfle.getTurbineFitnesses();
-	for (short j = 0; j < numTurbines; j++) {
-		if (fitnesses->get(j, 0) < validityThreshold) {
-			double newPosX = posTurbines(j, 0) + turbineMoveDistribution(randomEngine);
-			double newPosY = posTurbines(j, 1) + turbineMoveDistribution(randomEngine);
-			if (checkTurbine(newPosX, newPosY, numTurbines, j)) {
-				posTurbines(j, 0) = newPosX;
-				posTurbines(j, 1) = newPosY;
-			}
+	for (long t=0; t<fitnesses->rows; ++t) {
+		if(fitnesses->get(t, 0) < validityThreshold) {
+			parents.push_back(t);
 		}
 	}
 	delete fitnesses;
+	
+	return parents;
+}
+
+void ES::mutateTurbines() {
+	normal_distribution<float> turbineMoveDistribution(0, turbineMoveDistanceStandardDeviation);
+	
+	vector<long> parents = selectParents();
+	for (auto p: parents) {
+		double newPosX = posTurbines(p, 0) + turbineMoveDistribution(randomEngine);
+			double newPosY = posTurbines(p, 1) + turbineMoveDistribution(randomEngine);
+			if (checkTurbine(newPosX, newPosY, numTurbines, p)) {
+				posTurbines(p, 0) = newPosX;
+				posTurbines(p, 1) = newPosY;
+			}
+	}
 }
 
 void ES::run() {

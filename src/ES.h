@@ -17,6 +17,7 @@ public:
 	void setRandomTurbines();
 
 	void evaluate();
+	vector<long> selectParents();
 	void mutateTurbines();
 	void run();
 private:
