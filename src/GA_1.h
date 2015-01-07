@@ -9,10 +9,10 @@
 
 using namespace std;
 
-class ES {
+class GA {
 	public:
-		ES(WindFarmLayoutEvaluator& evaluator, short numTurbines, float validityThreshold);
-		virtual ~ES();
+		GA(WindFarmLayoutEvaluator& evaluator, short numTurbines, float validityThreshold);
+		virtual ~GA();
 
 		bool checkTurbinePosition(double posX, double posY, short turbinesCounter, short ignoreIndex = -1);
 		void countInvalidTurbines();

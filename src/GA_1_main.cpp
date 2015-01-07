@@ -35,10 +35,10 @@ Matrix<double> doSingleRun(string scenarioPath, long numberOfTurbines, float val
 	KusiakLayoutEvaluator wfle;
 	wfle.initialize(wsc);
 
-	// Initialize and run ES algorithm
-	ES es(wfle, numberOfTurbines, validityThreshold);
-	es.run();
-	return es.getLayout();
+	// Initialize and run GA algorithm
+	GA ga(wfle, numberOfTurbines, validityThreshold);
+	ga.run();
+	return ga.getLayout();
 }
 
 vector< pair<string, float> > getScenarios() {
@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	cout << "Evolution Strategy WindFLO" << endl << endl;
+	cout << "Genetic Algorithm WindFLO" << endl << endl;
 	if(fullRun) {
 		doFullRun(numberOfTurbines, outputPath, writeToDisc);
 	} else {

@@ -2,7 +2,7 @@
 #include <chrono>
 #include "GA_1.h"
 
-ES::ES(WindFarmLayoutEvaluator& evaluator, short numTurbines, float validityThreshold) :
+GA::GA(WindFarmLayoutEvaluator& evaluator, short numTurbines, float validityThreshold) :
 	wfle(evaluator) {
 	this->numTurbines = numTurbines;
 	this->posTurbines = Matrix<double>(numTurbines, 2);
@@ -17,10 +17,10 @@ ES::ES(WindFarmLayoutEvaluator& evaluator, short numTurbines, float validityThre
 	randomEngine = default_random_engine(seed);
 }
 
-ES::~ES() {
+GA::~GA() {
 }
 
-bool ES::checkTurbinePosition(double posX, double posY, short turbinesCounter,
+bool GA::checkTurbinePosition(double posX, double posY, short turbinesCounter,
                               short ignoreIndex) {
 	// check whether posX and posY are within the range of the grid
 	if(posX < gridAnchorX || posY < gridAnchorY || posX > gridAnchorX + gridWidth
@@ -52,7 +52,7 @@ bool ES::checkTurbinePosition(double posX, double posY, short turbinesCounter,
 	return true;
 }
 
-void ES::countInvalidTurbines() {
+void GA::countInvalidTurbines() {
 	numberOfInvalidTurbines = 0;
 	Matrix<double> *fitnesses = wfle.getTurbineFitnesses();
 	for(int i = 0; i < numTurbines; i++) {
@@ -63,7 +63,7 @@ void ES::countInvalidTurbines() {
 	delete fitnesses;
 }
 
-void ES::setRandomTurbines() {
+void GA::setRandomTurbines() {
 	long turbinesCounter = 0;
 
 	// Try to equally space turbines
@@ -100,7 +100,7 @@ void ES::setRandomTurbines() {
 	}
 }
 
-void ES::evaluate() {
+void GA::evaluate() {
 	double fitness = wfle.evaluate(&posTurbines);
 	countInvalidTurbines();
 
@@ -114,7 +114,7 @@ bool compareFitness(pair<double, long> fitness1, pair<double, long> fitness2) {
 	return fitness1.first > fitness2.first; // We want the highest fitness to have the lowest rank
 }
 
-vector<long> ES::selectParents() {
+vector<long> GA::selectParents() {
 	vector<long> parents;
 	Matrix<double> *fitnesses = wfle.getTurbineFitnesses();
 	for(long t = 0; t < fitnesses->rows; ++t) {
@@ -156,7 +156,7 @@ vector<long> ES::selectParents() {
 //	return parents;
 }
 
-void ES::mutateTurbines() {
+void GA::mutateTurbines() {
 	normal_distribution<float> turbineMoveDistribution(0, turbineMoveDistanceStandardDeviation);
 
 	vector<long> parents = selectParents();
@@ -170,7 +170,7 @@ void ES::mutateTurbines() {
 	}
 }
 
-void ES::run() {
+void GA::run() {
 	setRandomTurbines();
 
 	// 1000 evaluations
@@ -183,6 +183,6 @@ void ES::run() {
 	}
 }
 
-Matrix<double> ES::getLayout() {
+Matrix<double> GA::getLayout() {
 	return posTurbines;
 }
