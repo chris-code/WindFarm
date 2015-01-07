@@ -174,7 +174,7 @@ void ES::run() {
 	setRandomTurbines();
 	
 	// 1000 evaluations
-	for (long i = 0; i < 1; i++) {
+	for (long i = 0; i < 1000; i++) {
 		evaluate();
 		mutateTurbines();
 	}
