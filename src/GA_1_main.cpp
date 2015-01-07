@@ -1,6 +1,6 @@
 #include <fstream>
 #include <iostream>
-#include <unistd.h>
+#include <getopt.h>
 
 #include "eval/Matrix.hpp"
 #include "eval/WindScenario.h"
@@ -96,8 +96,16 @@ int main(int argc, char **argv) {
 	bool validitySpecified = false;
 	bool singleRun = false;
 	bool fullRun = false;
+	struct option options[] = {
+		{"turbines", required_argument, nullptr, 't'},
+		{"validity-threshold", required_argument, nullptr, 'v'},
+		{"scenario", required_argument, nullptr, 's'},
+		{"write-to-disc", required_argument, nullptr, 'w'},
+		{"full-run", no_argument, nullptr, 'f'},
+		{0, 0, nullptr, 0}
+	};
 	char option;
-	while((option = getopt(argc, argv, "t:v:s:w:f")) != -1) {
+	while((option = getopt_long(argc, argv, "t:v:s:w:f", options, nullptr)) != -1) {
 		switch(option) {
 			case 't':
 				numberOfTurbines = std::atoi(optarg);
