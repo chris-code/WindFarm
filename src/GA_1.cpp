@@ -179,3 +179,7 @@ void ES::run() {
 		mutateTurbines();
 	}
 }
+
+Matrix<double> ES::getLayout() {
+	return posTurbines;
+}

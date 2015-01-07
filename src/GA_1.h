@@ -22,6 +22,7 @@ public:
 	vector<long> selectParents();
 	void mutateTurbines();
 	void run();
+	Matrix<double> getLayout();
 private:
 	WindFarmLayoutEvaluator& wfle;
 	double gridAnchorX;

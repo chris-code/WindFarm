@@ -1,13 +1,30 @@
+#include <fstream>
 #include <iostream>
 #include <unistd.h>
 
+#include "eval/Matrix.hpp"
 #include "eval/WindScenario.h"
 #include "eval/KusiakLayoutEvaluator.h"
 #include "GA_1.h"
 
 using namespace std;
 
-void doSingleRun(string scenarioPath, long numberOfTurbines, float validityThreshold) {
+void writeLayoutToDisc(Matrix<double> layout, string path) {
+	ofstream outputFile;
+	outputFile.open(path);
+	if(outputFile.is_open()) {
+		outputFile << "#posX" << "\t" << "posY" << endl;
+		for(long t = 0; t < layout.rows; ++t) {
+			outputFile << layout.get(t, 0) << "\t" << layout.get(t, 1) << endl;
+		}
+		outputFile.close();
+	}
+	else {
+		cerr << "ERROR: Could not open " << path << " for writing" << endl;
+	}
+}
+
+Matrix<double> doSingleRun(string scenarioPath, long numberOfTurbines, float validityThreshold) {
 	cout << "Scenario: " << scenarioPath << endl;
 	cout << "Number of turbines: " << numberOfTurbines << endl;
 	cout << "Minimal wake free ratio: " << validityThreshold << endl;
@@ -22,6 +39,7 @@ void doSingleRun(string scenarioPath, long numberOfTurbines, float validityThres
 	// Initialize and run ES algorithm
 	ES es(wfle, numberOfTurbines, validityThreshold);
 	es.run();
+	return es.getLayout();
 }
 
 vector< pair<string, float> > getScenarioPaths() {
@@ -58,11 +76,13 @@ void doFullRun(long numberOfTurbines) {
 
 int main(int argc, char **argv) {
 	string scenarioPath = "Scenarios/obs_00.xml";
+	string outputPath;
+	bool writeToDisc = false;
 	long numberOfTurbines = 400;
 	float validityThreshold = 0.8;
 	bool fullRun = false;
 	char option;
-	while ((option = getopt(argc, argv, "t:v:s:f")) != -1) {
+	while ((option = getopt(argc, argv, "t:v:s:w:f")) != -1) {
 		switch (option) {
 			case 't':
 				numberOfTurbines = std::atoi(optarg);
@@ -73,14 +93,17 @@ int main(int argc, char **argv) {
 			case 's':
 				scenarioPath = optarg;
 				break;
+			case 'w':
+				writeToDisc = true;
+				outputPath = optarg;
+				break;
 			case 'f':
 				fullRun = true;
 				break;
 			case '?':
 				if(optopt == 't' || optopt == 'v' || optopt == 's') {
 					std::cerr << "Option -%" << optopt << " requires an argument." << std::endl;
-				}
-				else {
+				} else {
 					std::cerr << "Unknown option " << optopt << std::endl;
 				}
 				exit(EXIT_FAILURE);
@@ -95,7 +118,10 @@ int main(int argc, char **argv) {
 		doFullRun(numberOfTurbines);
 	}
 	else {
-		doSingleRun(scenarioPath, numberOfTurbines, validityThreshold);
+		Matrix<double> optimalLayout = doSingleRun(scenarioPath, numberOfTurbines, validityThreshold);
+		if(writeToDisc) {
+			writeLayoutToDisc(optimalLayout, outputPath);
+		}
 	}
 	return EXIT_SUCCESS;
 }
