@@ -87,6 +87,37 @@ void doFullRun(long numberOfTurbines, string outputDirectory, bool writeToDisk) 
 	}
 }
 
+void printHelp(char **argv) {
+	cout << "SYNOPSIS" << endl;
+	cout << "\t" << argv[0] << " -f" << " [-t turbines]" << " [-w path]" << endl;
+	cout << "\t" << argv[0] << " -s scenario" << " [-t turbines]" << " [-v validity-threshold]" << " [-w path]" << endl;
+	cout << "\t" << argv[0] << " -h|--help" << endl;
+
+	cout << "OPTIONS" << endl;
+	cout << "\t" << "-f, --full-run" << endl;
+	cout << "\t\t" << "Perform full run (optimize all scenarios in ./Scenarios). Mutually exclusive with -s and -v."
+	     << endl;
+
+	cout << "\t" << "-s path, --scenario path" << endl;
+	cout << "\t\t" << "Optimize scenario described in $path. Mutually exclusive with -f" << endl;
+
+	cout << "\t" << "-t int, --turbines int" << endl;
+	cout << "\t\t" << "Number of turbines to place on the grid." << endl;
+
+	cout << "\t" << "-v float, --validity-threshold float" << endl;
+	cout << "\t\t" << "Wake free ratio [0..1] a turbine needs to achieve to be considered valid.";
+	cout << "Mutually exclusive with -f" << endl;
+
+	cout << "\t" << "-w path, --write-to-disc path" << endl;
+	cout << "\t\t" << "Write solution to a file in gnuplot compatible format." << endl;
+	cout << "\t\t" << "If -f is specified, $path should be a directory where the solutions will be placed." << endl;
+	cout << "\t\t" << "If -s is specified, $path should be a filename where the solution will be written to." << endl;
+
+	cout << "\t" << "-h, --help" << endl;
+	cout << "\t\t" << "Display this message." << endl;
+
+}
+
 int main(int argc, char **argv) {
 	string scenarioPath;
 	string outputPath;
@@ -102,10 +133,11 @@ int main(int argc, char **argv) {
 		{"scenario", required_argument, nullptr, 's'},
 		{"write-to-disc", required_argument, nullptr, 'w'},
 		{"full-run", no_argument, nullptr, 'f'},
+		{"help", no_argument, nullptr, 'h'},
 		{0, 0, nullptr, 0}
 	};
 	char option;
-	while((option = getopt_long(argc, argv, "t:v:s:w:f", options, nullptr)) != -1) {
+	while((option = getopt_long(argc, argv, "t:v:s:w:fh", options, nullptr)) != -1) {
 		switch(option) {
 			case 't':
 				numberOfTurbines = std::atoi(optarg);
@@ -141,6 +173,10 @@ int main(int argc, char **argv) {
 				}
 				fullRun = true;
 				break;
+			case 'h':
+				printHelp(argv);
+				exit(EXIT_SUCCESS);
+				break;
 			case '?':
 				if(optopt == 't' || optopt == 'v' || optopt == 's') {
 					cerr << "Option -%" << optopt << " requires an argument." << endl;
@@ -152,6 +188,10 @@ int main(int argc, char **argv) {
 			default:
 				exit(EXIT_FAILURE);
 		}
+	}
+	if(!singleRun && !fullRun) {
+		cerr << "Error: Specify either -s or -f" << endl;
+		exit(EXIT_FAILURE);
 	}
 
 	cout << "Genetic Algorithm WindFLO" << endl << endl;
