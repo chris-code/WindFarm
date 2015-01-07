@@ -1,6 +1,6 @@
 #include <algorithm>
 #include <chrono>
-#include "ES.h"
+#include "GA_1.h"
 
 ES::ES(WindFarmLayoutEvaluator& evaluator, short numTurbines, float validityThreshold) :
 		wfle(evaluator) {
@@ -67,7 +67,8 @@ void ES::setRandomTurbines() {
 	long turbinesCounter = 0;
 	
 	// Try to equally space turbines
-	float equalSpacingDistance = sqrt(gridWidth * gridHeight / double(numTurbines));
+	//float equalSpacingDistance = sqrt(gridWidth * gridHeight / double(numTurbines));
+	float equalSpacingDistance = 13.0 * dynamic_cast<KusiakLayoutEvaluator*>(&wfle)->scenario.R;
 	for(float posY = 0; posY < gridHeight; posY += equalSpacingDistance * 1.5) {
 		for(float posX = 0; posX < gridWidth; posX += equalSpacingDistance * 1.5) {
 			if(turbinesCounter == numTurbines) {
@@ -124,34 +125,34 @@ vector<long> ES::selectParents() {
 	
 	return parents;
 	
-	/*uniform_int_distribution<long> randomSelector(1, numTurbines * (numTurbines + 1) / 2);
-	
-	Matrix<double> *fitnesses = wfle.getTurbineFitnesses();
-	vector< pair<double, long> > sortedFitnesses;
-	for (long t=0; t<fitnesses->rows; ++t) {
-		sortedFitnesses.push_back( make_pair(fitnesses->get(t, 0), t) );
-	}
-	delete fitnesses;
-	sort(sortedFitnesses.begin(), sortedFitnesses.end(), compareFitness);
-	
-	long additionalParentCount = 5;
-	vector<long> parents;
-	for(long p = numTurbines; p > numTurbines - numberOfInvalidTurbines; --p) {
-		parents.push_back(sortedFitnesses[p-1].second);
-	}
-	
-	for(long p = 0; p < additionalParentCount; ++p) {
-		long randomValue = randomSelector(randomEngine);
-		for(long v = 1; v <= numTurbines; ++v) {
-			long g = v * (v + 1) / 2;
-			if(randomValue <= g) {
-				parents.push_back(sortedFitnesses[v-1].second);
-				break;
-			}
-		}
-	}
-	
-	return parents;*/
+//	uniform_int_distribution<long> randomSelector(1, numTurbines * (numTurbines + 1) / 2);
+//	
+//	Matrix<double> *fitnesses = wfle.getTurbineFitnesses();
+//	vector< pair<double, long> > sortedFitnesses;
+//	for (long t=0; t<fitnesses->rows; ++t) {
+//		sortedFitnesses.push_back( make_pair(fitnesses->get(t, 0), t) );
+//	}
+//	delete fitnesses;
+//	sort(sortedFitnesses.begin(), sortedFitnesses.end(), compareFitness);
+//	
+//	long additionalParentCount = 5;
+//	vector<long> parents;
+//	for(long p = numTurbines; p > numTurbines - numberOfInvalidTurbines; --p) {
+//		parents.push_back(sortedFitnesses[p-1].second);
+//	}
+//	
+//	for(long p = 0; p < additionalParentCount; ++p) {
+//		long randomValue = randomSelector(randomEngine);
+//		for(long v = 1; v <= numTurbines; ++v) {
+//			long g = v * (v + 1) / 2;
+//			if(randomValue <= g) {
+//				parents.push_back(sortedFitnesses[v-1].second);
+//				break;
+//			}
+//		}
+//	}
+//	
+//	return parents;
 }
 
 void ES::mutateTurbines() {

@@ -3,7 +3,7 @@
 
 #include "eval/WindScenario.h"
 #include "eval/KusiakLayoutEvaluator.h"
-#include "ES.h"
+#include "GA_1.h"
 
 using namespace std;
 

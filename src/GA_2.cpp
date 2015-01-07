@@ -1,4 +1,4 @@
-#include "GA.h"
+#include "GA_2.h"
 #include "eval/KusiakLayoutEvaluator.h"
 #include <algorithm>
 

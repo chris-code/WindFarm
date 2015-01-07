@@ -1,7 +1,7 @@
 #include <string>
 #include <stdlib.h>
 #include "eval/KusiakLayoutEvaluator.h"
-#include "GA.h"
+#include "GA_2.h"
 
 using namespace std;
 
