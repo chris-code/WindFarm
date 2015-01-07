@@ -67,10 +67,11 @@ void ES::setRandomTurbines() {
 	long turbinesCounter = 0;
 	
 	// Try to equally space turbines
-	//float equalSpacingDistance = sqrt(gridWidth * gridHeight / double(numTurbines));
-	float equalSpacingDistance = 13.0 * dynamic_cast<KusiakLayoutEvaluator*>(&wfle)->scenario.R;
-	for(float posY = 0; posY < gridHeight; posY += equalSpacingDistance * 1.5) {
-		for(float posX = 0; posX < gridWidth; posX += equalSpacingDistance * 1.5) {
+	float equalSpacingDistance = sqrt(gridWidth * gridHeight / double(numTurbines));
+	float minSpacingDistance = 13.0 * dynamic_cast<KusiakLayoutEvaluator*>(&wfle)->scenario.R;
+	float spacingDistance = max(minSpacingDistance, equalSpacingDistance);
+	for(float posY = 0; posY < gridHeight; posY += spacingDistance * 1.5) {
+		for(float posX = 0; posX < gridWidth; posX += spacingDistance * 1.5) {
 			if(turbinesCounter == numTurbines) {
 				return;
 			}
@@ -173,7 +174,7 @@ void ES::run() {
 	setRandomTurbines();
 	
 	// 1000 evaluations
-	for (long i = 0; i < 1000; i++) {
+	for (long i = 0; i < 1; i++) {
 		evaluate();
 		mutateTurbines();
 	}
