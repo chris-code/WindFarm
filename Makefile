@@ -3,15 +3,15 @@ CFLAGS =-Wall -std=c++11 -g
 OPTFLAGS=-O2
 INCLUDES=-I$(PWD)
 
-PROGRAMS=main.o ga_example.o
+PROGRAMS=main example
 OBJECTS=compile/tinyxml2.o compile/WindScenario.o compile/WindFarmLayoutEvaluator.o compile/KusiakLayoutEvaluator.o
 
 all:$(PROGRAMS)
-.PHONY:$(PROGRAMS)
+.PHONY:main
 
-main.o:$(OBJECTS)
+main:$(OBJECTS)
 	$(CC) $(CFLAGS) $(OBJECTS) src/main.cpp -o $@ src/GA_1.cpp src/GA_2.cpp src/GA_3.cpp $(INCLUDES) $(OPTFLAGS)
-ga_example.o:$(OBJECTS)
+example:$(OBJECTS)
 	$(CC) $(CFLAGS) $(OBJECTS) src/GA_example_main.cpp src/GA_example.cpp -o $@ $(INCLUDES) $(OPTFLAGS)
 
 compile/tinyxml2.o:

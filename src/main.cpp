@@ -7,6 +7,7 @@
 #include "eval/KusiakLayoutEvaluator.h"
 #include "GA_1.h"
 #include "GA_2.h"
+#include "GA_3.h"
 
 using namespace std;
 
@@ -37,7 +38,7 @@ Matrix<double> doSingleRun(string scenarioPath, long numberOfTurbines, float val
 	wfle.initialize(wsc);
 
 	// Initialize and run GA algorithm
-	char c = '1';
+	char c = '3';
 	switch(c) {
 		case '1': {
 			GA ea(wfle, numberOfTurbines, validityThreshold);
@@ -48,6 +49,11 @@ Matrix<double> doSingleRun(string scenarioPath, long numberOfTurbines, float val
 			GA2 ea2(wfle, numberOfTurbines);
 			ea2.run();
 			return ea2.getLayout();
+		}
+		case '3': {
+			GA3 ea3(wfle, 5, 10, numberOfTurbines);
+			ea3.run();
+			return ea3.getLayout();
 		}
 		default:
 			cerr << "'" << c << "' in switch construct." << endl;
