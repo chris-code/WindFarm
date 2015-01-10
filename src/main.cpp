@@ -6,6 +6,7 @@
 #include "eval/WindScenario.h"
 #include "eval/KusiakLayoutEvaluator.h"
 #include "GA_1.h"
+#include "GA_2.h"
 
 using namespace std;
 
@@ -36,9 +37,22 @@ Matrix<double> doSingleRun(string scenarioPath, long numberOfTurbines, float val
 	wfle.initialize(wsc);
 
 	// Initialize and run GA algorithm
-	GA ga(wfle, numberOfTurbines, validityThreshold);
-	ga.run();
-	return ga.getLayout();
+	char c = '1';
+	switch(c) {
+		case '1': {
+			GA ea(wfle, numberOfTurbines, validityThreshold);
+			ea.run();
+			return ea.getLayout();
+		}
+		case '2': {
+			GA2 ea2(wfle, numberOfTurbines);
+			ea2.run();
+			return ea2.getLayout();
+		}
+		default:
+			cerr << "'" << c << "' in switch construct." << endl;
+			return nullptr;
+	}
 }
 
 vector< pair<string, float> > getScenarios() {
@@ -127,6 +141,7 @@ int main(int argc, char **argv) {
 	bool validitySpecified = false;
 	bool singleRun = false;
 	bool fullRun = false;
+
 	struct option options[] = {
 		{"turbines", required_argument, nullptr, 't'},
 		{"validity-threshold", required_argument, nullptr, 'v'},

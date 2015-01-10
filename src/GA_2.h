@@ -6,12 +6,13 @@
 
 using namespace std;
 
-class GA {
+class GA2 {
 	public:
-		GA( WindFarmLayoutEvaluator &wfleInput, long numberOfTurbines );
-		virtual ~GA();
+		GA2( WindFarmLayoutEvaluator &wfleInput, long numberOfTurbines );
+		virtual ~GA2();
 
 		virtual void run();
+		Matrix<double> getLayout();
 	private:
 		WindFarmLayoutEvaluator &wfle;
 		long numberOfTurbines;

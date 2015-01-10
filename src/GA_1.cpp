@@ -160,7 +160,7 @@ void GA::mutateTurbines() {
 	normal_distribution<float> turbineMoveDistribution(0, turbineMoveDistanceStandardDeviation);
 
 	vector<long> parents = selectParents();
-	for(auto p : parents) {
+	for(auto &p : parents) {
 		double newPosX = posTurbines(p, 0) + turbineMoveDistribution(randomEngine);
 		double newPosY = posTurbines(p, 1) + turbineMoveDistribution(randomEngine);
 		if(checkTurbinePosition(newPosX, newPosY, numTurbines, p)) {

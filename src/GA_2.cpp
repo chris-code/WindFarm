@@ -19,7 +19,7 @@ void printLayout( Matrix<char> &layout ) {
 
 //==================== Public members ====================
 
-GA::GA( WindFarmLayoutEvaluator &wfleInput, long numberOfTurbines ) :
+GA2::GA2( WindFarmLayoutEvaluator &wfleInput, long numberOfTurbines ) :
 	wfle( wfleInput ) {
 	this->numberOfTurbines = numberOfTurbines;
 
@@ -27,10 +27,10 @@ GA::GA( WindFarmLayoutEvaluator &wfleInput, long numberOfTurbines ) :
 	layout = generateLayout();
 }
 
-GA::~GA() {
+GA2::~GA2() {
 }
 
-void GA::run() {
+void GA2::run() {
 	while( true ) {
 		Matrix<double> evalLayout = transformToEvalFormat( layout );
 		wfle.evaluate( &evalLayout );
@@ -57,7 +57,7 @@ void GA::run() {
 
 //==================== Private members ====================
 
-Matrix<vector<double> > GA::generateGrid() {
+Matrix<vector<double> > GA2::generateGrid() {
 	KusiakLayoutEvaluator *kusiakPointer =
 	    dynamic_cast<KusiakLayoutEvaluator*>( &wfle );
 
@@ -78,7 +78,7 @@ Matrix<vector<double> > GA::generateGrid() {
 	return grid;
 }
 
-Matrix<char> GA::generateLayout() {
+Matrix<char> GA2::generateLayout() {
 	//TODO try equally spaced initialization (turbines in obstacles can be placed at the start)
 	Matrix<char> layout( grid.rows, grid.cols );
 	for(long y=0; y<layout.rows; ++y) {
@@ -102,7 +102,7 @@ Matrix<char> GA::generateLayout() {
 	return layout;
 }
 
-bool GA::isValidPosition( double posX, double posY ) {
+bool GA2::isValidPosition( double posX, double posY ) {
 	KusiakLayoutEvaluator *kusiakPointer =
 	    dynamic_cast<KusiakLayoutEvaluator*>( &wfle );
 
@@ -121,7 +121,7 @@ bool GA::isValidPosition( double posX, double posY ) {
 	return valid;
 }
 
-long GA::countInvalidTurbines(double threshold)
+long GA2::countInvalidTurbines(double threshold)
 {
 	long numberOfInvalidTurbines = 0;
 
@@ -144,7 +144,7 @@ bool compareFitnesses( pair<double, long> fit1, pair<double, long> fit2 ) {
 }
 
 
-vector<pair<long, long> > GA::selectParents( Matrix<double> &evalLayout, long howMany ) {
+vector<pair<long, long> > GA2::selectParents( Matrix<double> &evalLayout, long howMany ) {
 	if ( howMany > long( evalLayout.rows ) ) {
 		cerr << "You can't choose more parents than turbines exist." << endl;
 		exit( EXIT_FAILURE );
@@ -188,7 +188,7 @@ vector<pair<long, long> > GA::selectParents( Matrix<double> &evalLayout, long ho
 }
 
 
-vector<Matrix<char> > GA::mate( long x, long y, long offspringCount ) {
+vector<Matrix<char> > GA2::mate( long x, long y, long offspringCount ) {
 	srand( time( NULL ) ); //FIXME MOVE THIS
 	vector<Matrix<char> > newLayouts;
 	for ( long o = 0; o < offspringCount; ++o ) {
@@ -208,7 +208,7 @@ vector<Matrix<char> > GA::mate( long x, long y, long offspringCount ) {
 	return newLayouts;
 }
 
-vector< Matrix<char> > GA::mate( vector< pair<long, long> > turbines, long offspringCount ) {
+vector< Matrix<char> > GA2::mate( vector< pair<long, long> > turbines, long offspringCount ) {
 	vector< Matrix<char> > offspringPopulation;
 	for(long o=0; o<offspringCount; ++o) {
 		Matrix<char> offspring( layout );
@@ -230,7 +230,7 @@ vector< Matrix<char> > GA::mate( vector< pair<long, long> > turbines, long offsp
 }
 
 //	TODO describe the format of the returned matrix
-Matrix<double> GA::transformToEvalFormat( Matrix<char> &layoutToTransform ) {
+Matrix<double> GA2::transformToEvalFormat( Matrix<char> &layoutToTransform ) {
 	long transformedTurbines = 0;
 	Matrix<double> evalLayout( numberOfTurbines, 4 );
 	for( long y=0; y<grid.rows; ++y ) {
@@ -245,4 +245,8 @@ Matrix<double> GA::transformToEvalFormat( Matrix<char> &layoutToTransform ) {
 		}
 	}
 	return evalLayout;
+}
+
+Matrix<double> GA2::getLayout() {
+	return transformToEvalFormat(layout);
 }
