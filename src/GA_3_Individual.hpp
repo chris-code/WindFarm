@@ -19,6 +19,11 @@ class Individual {
 			initializeLayoutRandomly();
 		}
 		bool operator<(const Individual &other) const { // Required for sorting
+			long thisInvalid = countInvalidTurbines();
+			long otherInvalid = other.countInvalidTurbines();
+			if(thisInvalid != otherInvalid) {
+				return thisInvalid > otherInvalid;
+			}
 			return fitness > other.fitness;
 		}
 		void mutate() {
@@ -38,7 +43,7 @@ class Individual {
 				layout.set(t, 1, newPosY);
 			}
 		}
-		long countInvalidTurbines() {
+		long countInvalidTurbines() const {
 			long invalidTurbines = 0;
 			for(long t = 0; t < turbineFitnesses.rows; ++t) {
 				if(turbineFitnesses.get(t, 0) <= validityThreshold) {
