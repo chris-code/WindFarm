@@ -12,29 +12,39 @@ GA3::GA3(KusiakLayoutEvaluator &evaluator, long populationSize, long offspringCo
 	randomEngine = default_random_engine(seed);
 
 	for(long l = 0; l < populationSize; ++l) {
-		population.push_back(make_pair(generateRandomLayout(), -1.0));
+		population.push_back(Individual(&wfle, &randomEngine, generateRandomLayout(), -1.0, Matrix<double>(1, 1)));
 	}
 }
 
 void GA3::run() {
 //	TODO shrink population if necessary
-	evaluatePopulation();
-	vector<long> parentIndices = selectParents();
+	while(true) {
+		evaluatePopulation();
+		while(long(population.size()) > populationSize) {
+			population.pop_back();
+		}
+		cout << "Fitness after " << wfle.getNumberOfEvaluation() << " evaluations: " << population[0].fitness << endl;
+		vector<long> parentIndices = selectParents();
+		vector<Individual> offspring = generateOffspring(parentIndices);
+		population = offspring;
+	}
 }
 
 Matrix<double> GA3::getLayout() {
-	return population[0].first; // FIXME this should be the best one
+	return population[0].layout; // FIXME this should be the best one
 }
 
-bool compareLayouts(const pair < Matrix<double>, double> &a, const pair < Matrix<double>, double> &b) {
-	return a.second > b.second;
+bool compareIndividuals(const Individual &a, const Individual &b) {
+	return a.fitness > b.fitness;
 }
 
 void GA3::evaluatePopulation() {
-	for(auto & layout : population) {
-		layout.second = wfle.evaluate(&(layout.first));
+	for(auto & individual : population) {
+		wfle.evaluate(&(individual.layout));
+		individual.fitness = wfle.getWakeFreeRatio();
+		individual.turbineFitnesses = *(wfle.getTurbineFitnesses());
 	}
-	sort(population.begin(), population.end(), compareLayouts);
+	sort(population.begin(), population.end(), compareIndividuals); //TODO overwrite operator<
 }
 
 vector<long> GA3::selectParents() {
@@ -53,6 +63,16 @@ vector<long> GA3::selectParents() {
 		parentIndices.push_back(0); // This should be unreachable
 	}
 	return parentIndices;
+}
+
+vector<Individual> GA3::generateOffspring(vector<long> parentIndices) {
+	vector<Individual> offspring;
+	for(auto p : parentIndices) {
+//		TODO
+		Individual i = population[p].mutate();
+		offspring.push_back(i);
+	}
+	return offspring;
 }
 
 Matrix<double> GA3::generateRandomLayout() {

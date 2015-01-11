@@ -51,7 +51,7 @@ Matrix<double> doSingleRun(string scenarioPath, long numberOfTurbines, float val
 			return ea2.getLayout();
 		}
 		case '3': {
-			GA3 ea3(wfle, 5, 10, numberOfTurbines);
+			GA3 ea3(wfle, 1, 3, numberOfTurbines);
 			ea3.run();
 			return ea3.getLayout();
 		}
