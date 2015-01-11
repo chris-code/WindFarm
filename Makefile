@@ -10,7 +10,7 @@ all:$(PROGRAMS)
 .PHONY:main
 
 main:$(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) src/main.cpp -o $@ src/GA_1.cpp src/GA_2.cpp src/GA_3.cpp $(INCLUDES) $(OPTFLAGS)
+	$(CC) $(CFLAGS) $(OBJECTS) src/main.cpp -o $@ src/GA_1.cpp src/GA_2.cpp src/GA_3.hpp src/GA_3_Individual.hpp $(INCLUDES) $(OPTFLAGS)
 example:$(OBJECTS)
 	$(CC) $(CFLAGS) $(OBJECTS) src/GA_example_main.cpp src/GA_example.cpp -o $@ $(INCLUDES) $(OPTFLAGS)
 

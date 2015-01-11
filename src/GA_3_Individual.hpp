@@ -1,6 +1,3 @@
-#pragma once
-
-#include <vector>
 #include <random>
 #include "eval/Matrix.hpp"
 #include "eval/KusiakLayoutEvaluator.h"
@@ -115,27 +112,4 @@ class Individual {
 				return true;
 			return false;
 		}
-};
-
-class GA3 {
-	public:
-		GA3(KusiakLayoutEvaluator &evaluator, bool commaSelection, long populationSize, long offspringCount,
-		    long numberOfTurbines, double validityThreshold);
-		void run();
-		Matrix<double> getLayout();
-	private:
-		KusiakLayoutEvaluator& wfle;
-		double validityThreshold;
-		bool commaSelection;
-		long populationSize;
-		long offspringCount;
-		long numberOfTurbines;
-		vector<Individual> population;
-		vector<Individual> best; // FIXME this should not be a vector
-
-		default_random_engine randomEngine;
-
-		void evaluatePopulation();
-		vector<long> selectParents();
-		vector<Individual> generateOffspring(vector<long> parentIndices);
 };

@@ -7,7 +7,7 @@
 #include "eval/KusiakLayoutEvaluator.h"
 #include "GA_1.h"
 #include "GA_2.h"
-#include "GA_3.h"
+#include "GA_3.hpp"
 
 using namespace std;
 
