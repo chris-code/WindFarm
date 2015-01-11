@@ -18,15 +18,27 @@ class Individual {
 
 			initializeLayoutRandomly();
 		}
+		
 		bool operator<(const Individual &other) const { // Required for sorting
+			if(fitness < 0.0) { // This is not evaluated, automatic 'loss'
+				return true;
+			}
+			if(other.fitness < 0.0) { // Other is not evaluated, automatic 'win'
+				return false;
+			}
+			
 			long thisInvalid = countInvalidTurbines();
 			long otherInvalid = other.countInvalidTurbines();
 			if(thisInvalid != otherInvalid) {
 				return thisInvalid > otherInvalid;
 			}
-			return fitness > other.fitness;
+			
+			return fitness < other.fitness;
 		}
+		
 		void mutate() {
+			fitness = -1.0;
+			
 			double sigma = 140.0;
 			normal_distribution<double> turbineOffset(0, sigma);
 			for(long t = 0; t < layout.rows; ++t) {
@@ -43,6 +55,7 @@ class Individual {
 				layout.set(t, 1, newPosY);
 			}
 		}
+		
 		long countInvalidTurbines() const {
 			long invalidTurbines = 0;
 			for(long t = 0; t < turbineFitnesses.rows; ++t) {
@@ -52,6 +65,7 @@ class Individual {
 			}
 			return invalidTurbines;
 		}
+		
 	private:
 		KusiakLayoutEvaluator *wfle;
 		default_random_engine *randomEngine;
@@ -72,6 +86,7 @@ class Individual {
 				}
 			}
 		}
+		
 		bool isValidNextTurbine(long placedTurbines, double posX, double posY) {
 			if(isOutsideGrid(posX, posY))
 				return false;
@@ -82,6 +97,7 @@ class Individual {
 					return false;
 			return true;
 		}
+		
 		bool isValidMutation(long mutatedTurbineIndex, double newPosX, double newPosY) {
 			if(isOutsideGrid(newPosX, newPosY))
 				return false;
@@ -95,11 +111,13 @@ class Individual {
 			}
 			return true;
 		}
+		
 		bool isOutsideGrid(double posX, double posY) {
 			if(posX < 0 || posX <= wfle->scenario.width || posY < 0 || posY >= wfle->scenario.height)
 				return false;
 			return true;
 		}
+		
 		bool isInObstacle(double posX, double posY) {
 			for(long o = 0; o < wfle->scenario.obstacles.rows; ++o) {
 				double xmin = wfle->scenario.obstacles.get(o, 0);
@@ -111,6 +129,7 @@ class Individual {
 			}
 			return false;
 		}
+		
 		bool isTooClose(double posX1, double posY1, double posX2, double posY2) {
 			double distance = sqrt(pow(posX1 - posX2, 2.0) + pow(posY1 - posY2, 2.0));
 			if(distance <= 8 * wfle->scenario.R)

@@ -11,8 +11,15 @@ class GA3 {
 		GA3(KusiakLayoutEvaluator &evaluator, bool commaSelection, long populationSize, long offspringCount,
 		    long numberOfTurbines, double validityThreshold) : wfle(evaluator) {
 			if(commaSelection && offspringCount < populationSize) {
-				cerr << "Genetic Algorithm Instance: ERROR: comma selection requires offspringCount >= populationSize" << endl;
+				cerr << "Genetic Algorithm Instance: ERROR: comma selection requires offspringCount >= populationSize"
+				     << endl;
 			}
+			cout << "Genetic Algorithm Instance: Population model (" << populationSize;
+			if(commaSelection)
+				cout << ",";
+			else
+				cout << "+";
+			cout << offspringCount << ")" << endl;
 
 			this->commaSelection = commaSelection;
 			this->populationSize = populationSize;
@@ -24,25 +31,24 @@ class GA3 {
 			randomEngine = default_random_engine(seed);
 			cout << "Genetic Algorithm Instance: Using seed " << seed << endl;
 
-			for(long l = 0; l < offspringCount; ++l) {
-//		Initialize population with offspringCount individuals. Normally, one would initialize it with the
-//		populationSize, but this way we evaluate the same amount of individuals in each iteration (for the sake of
-//		consistency). This only affects the first iteration and is thus only minimally wasteful.
+			for(long l = 0; l < populationSize; ++l) {
 				population.push_back(Individual(&wfle, &randomEngine, numberOfTurbines, validityThreshold));
 			}
 			best.push_back(population[0]);
 		}
+
 		void run() {
 			while(true) {
 				evaluatePopulation();
 				while(long(population.size()) > populationSize) {
 					population.pop_back();
 				}
-				if(population[0].fitness > best[0].fitness) {
+				if(!(population[0] < best[0])) {  // Not elitism, just remember the best layout across all iterations
 					best[0] = population[0];
 				}
 				cout << "Fitness after " << wfle.getNumberOfEvaluation() << " evaluations: " << best[0].fitness;
 				cout << " (" << best[0].countInvalidTurbines() << " invalid turbines)" << endl;
+
 				vector<long> parentIndices = selectParents();
 				vector<Individual> offspring = generateOffspring(parentIndices);
 
@@ -55,13 +61,14 @@ class GA3 {
 		Matrix<double> getLayout() {
 			return best[0].layout;
 		}
+
 	private:
-		KusiakLayoutEvaluator& wfle;
-		double validityThreshold;
 		bool commaSelection;
 		long populationSize;
 		long offspringCount;
 		long numberOfTurbines;
+		double validityThreshold;
+		KusiakLayoutEvaluator& wfle;
 		vector<Individual> population;
 		vector<Individual> best; // FIXME this should not be a vector
 
@@ -69,12 +76,19 @@ class GA3 {
 
 		void evaluatePopulation() {
 			for(auto & individual : population) {
+				if(individual.fitness >= 0.0) {
+//					This individual has already been evaluated (can happen with plus selection)
+					continue;
+				}
 				wfle.evaluate(&(individual.layout));
 				individual.fitness = wfle.getWakeFreeRatio();
 				individual.turbineFitnesses = *(wfle.getTurbineFitnesses());
 			}
-			sort(population.begin(), population.end());
+
+			// Mind the REVERSE iterators, sort in descending order (highest fitness first)
+			sort(population.rbegin(), population.rend());
 		}
+
 		vector<long> selectParents() {
 //			TODO tournament selection, maybe?
 			uniform_int_distribution<long> selector(1, (populationSize * (populationSize + 1)) / 2);
@@ -91,11 +105,12 @@ class GA3 {
 			}
 			return parentIndices;
 		}
+
 		vector<Individual> generateOffspring(vector<long> parentIndices) {
 			vector<Individual> offspring;
 			for(auto p : parentIndices) {
 				Individual i = Individual(population[p]);
-				i.mutate();
+				i.mutate(); // This resets the fitness value
 				offspring.push_back(i);
 			}
 			return offspring;
