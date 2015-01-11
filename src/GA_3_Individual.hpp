@@ -19,6 +19,9 @@ class Individual {
 			initializeLayoutRandomly();
 		}
 		
+//		This method is meant to compare two individuals based on their fitness. If both have the same amount of invalid
+//		turbines, the one with greater fitness is considered 'greater'. However, if one individual has more invalid
+//		turbines than the other, it automatically loses regardless of fitness.
 		bool operator<(const Individual &other) const { // Required for sorting
 			if(fitness < 0.0) { // This is not evaluated, automatic 'loss'
 				return true;

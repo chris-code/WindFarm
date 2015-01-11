@@ -6,6 +6,12 @@
 #include "eval/KusiakLayoutEvaluator.h"
 #include "GA_3_Individual.hpp"
 
+// TODO
+// best should not be a vector
+// Stopping criterion
+// Continue optimizing after 0 invalid turbines
+// Implement optional elitism
+
 class GA3 {
 	public:
 		GA3(KusiakLayoutEvaluator &evaluator, bool commaSelection, long populationSize, long offspringCount,
@@ -43,7 +49,7 @@ class GA3 {
 				while(long(population.size()) > populationSize) {
 					population.pop_back();
 				}
-				if(!(population[0] < best[0])) {  // Not elitism, just remember the best layout across all iterations
+				if(best[0] < population[0]) {  // Not elitism, just remember the best layout across all iterations
 					best[0] = population[0];
 				}
 				cout << "Fitness after " << wfle.getNumberOfEvaluation() << " evaluations: " << best[0].fitness;
