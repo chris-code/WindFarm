@@ -8,7 +8,7 @@
 
 // TODO
 // best should not be a vector
-// Stopping criterion
+// Store individuals in something other than vector
 // Continue optimizing after 0 invalid turbines
 // Implement optional elitism
 
@@ -44,7 +44,7 @@ class GA3 {
 		}
 
 		void run() {
-			while(true) {
+			while(wfle.getNumberOfEvaluation() + offspringCount <= 1000) {
 				evaluatePopulation();
 				while(long(population.size()) > populationSize) {
 					population.pop_back();
@@ -52,8 +52,10 @@ class GA3 {
 				if(best[0] < population[0]) {  // Not elitism, just remember the best layout across all iterations
 					best[0] = population[0];
 				}
-				cout << "Fitness after " << wfle.getNumberOfEvaluation() << " evaluations: " << best[0].fitness;
-				cout << " (" << best[0].countInvalidTurbines() << " invalid turbines)" << endl;
+				if((wfle.getNumberOfEvaluation() - populationSize) % (50 * offspringCount) == 0) {
+					cout << "Fitness after " << wfle.getNumberOfEvaluation() << " evaluations: " << best[0].fitness;
+					cout << " (" << best[0].countInvalidTurbines() << " invalid turbines)" << endl;
+				}
 
 				vector<long> parentIndices = selectParents();
 				vector<Individual> offspring = generateOffspring(parentIndices);
@@ -63,6 +65,8 @@ class GA3 {
 				}
 				population.insert(population.end(), offspring.begin(), offspring.end());
 			}
+			cout << "Fitness after " << wfle.getNumberOfEvaluation() << " evaluations: " << best[0].fitness;
+			cout << " (" << best[0].countInvalidTurbines() << " invalid turbines)" << endl;
 		}
 		Matrix<double> getLayout() {
 			return best[0].layout;
@@ -72,11 +76,12 @@ class GA3 {
 		bool commaSelection;
 		long populationSize;
 		long offspringCount;
+		vector<Individual> population;
+		vector<Individual> best; // FIXME this should not be a vector
+
 		long numberOfTurbines;
 		double validityThreshold;
 		KusiakLayoutEvaluator& wfle;
-		vector<Individual> population;
-		vector<Individual> best; // FIXME this should not be a vector
 
 		default_random_engine randomEngine;
 
@@ -112,7 +117,7 @@ class GA3 {
 			return parentIndices;
 		}
 
-		vector<Individual> generateOffspring(vector<long> parentIndices) {
+		vector<Individual> generateOffspring(const vector<long> &parentIndices) {
 			vector<Individual> offspring;
 			for(auto p : parentIndices) {
 				Individual i = Individual(population[p]);

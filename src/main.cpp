@@ -26,6 +26,7 @@ void writeLayoutToDisc(Matrix<double> layout, string path) {
 }
 
 Matrix<double> doSingleRun(string scenarioPath, long numberOfTurbines, float validityThreshold) {
+	cout << endl;
 	cout << "Scenario: " << scenarioPath << endl;
 	cout << "Number of turbines: " << numberOfTurbines << endl;
 	cout << "Minimal wake free ratio: " << validityThreshold << endl;
@@ -110,12 +111,14 @@ void doFullRun(long numberOfTurbines, string outputDirectory, bool writeToDisk) 
 void printHelp(char **argv) {
 	cout << "SYNOPSIS" << endl;
 	cout << "\t" << argv[0] << " -f" << " [-t turbines]" << " [-w path]" << endl;
-	cout << "\t" << argv[0] << " -s scenario" << " [-t turbines]" << " [-v validity-threshold]" << " [-w path]" << endl;
+	cout << "\t" << argv[0] << " -s scenario" << " [-t turbines]" << " [-v validity-threshold]" << " [-w path]"
+	     << endl;
 	cout << "\t" << argv[0] << " -h|--help" << endl;
 
 	cout << "OPTIONS" << endl;
 	cout << "\t" << "-f, --full-run" << endl;
-	cout << "\t\t" << "Perform full run (optimize all scenarios in ./Scenarios). Mutually exclusive with -s and -v."
+	cout << "\t\t" <<
+	     "Perform full run (optimize all scenarios in ./Scenarios). Mutually exclusive with -s and -v."
 	     << endl;
 
 	cout << "\t" << "-s path, --scenario path" << endl;
@@ -130,8 +133,10 @@ void printHelp(char **argv) {
 
 	cout << "\t" << "-w path, --write-to-disc path" << endl;
 	cout << "\t\t" << "Write solution to a file in gnuplot compatible format." << endl;
-	cout << "\t\t" << "If -f is specified, $path should be a directory where the solutions will be placed." << endl;
-	cout << "\t\t" << "If -s is specified, $path should be a filename where the solution will be written to." << endl;
+	cout << "\t\t" << "If -f is specified, $path should be a directory where the solutions will be placed." <<
+	     endl;
+	cout << "\t\t" << "If -s is specified, $path should be a filename where the solution will be written to." <<
+	     endl;
 
 	cout << "\t" << "-h, --help" << endl;
 	cout << "\t\t" << "Display this message." << endl;
