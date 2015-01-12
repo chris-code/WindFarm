@@ -52,7 +52,7 @@ Matrix<double> doSingleRun(string scenarioPath, long numberOfTurbines, float val
 			return ea2.getLayout();
 		}
 		case '3': {
-			GA3 ea3(wfle, true, 1, 5, false, numberOfTurbines, validityThreshold);
+			GA3 ea3(wfle, true, 1, 1, false, numberOfTurbines, validityThreshold);
 			ea3.run();
 			return ea3.getLayout();
 		}
@@ -91,7 +91,7 @@ void doFullRun(long numberOfTurbines, string outputDirectory, bool writeToDisk) 
 	vector< pair<string, float> > scenarios = getScenarios();
 	for(auto s : scenarios) {
 		Matrix<double> layout = doSingleRun(s.first, numberOfTurbines, s.second);
-		if(writeToDisk) {
+		if(writeToDisk) { //FIXME call method
 			string outputFilePath = outputDirectory + s.first.substr(s.first.find_last_of('/') + 1);
 			ofstream outputFile;
 			outputFile.open(outputFilePath);

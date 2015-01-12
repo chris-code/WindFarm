@@ -116,9 +116,9 @@ class Individual {
 		}
 
 		bool isOutsideGrid(double posX, double posY) const {
-			if(posX < 0 || posX <= wfle->scenario.width || posY < 0 || posY >= wfle->scenario.height)
-				return false;
-			return true;
+			if(posX < 0 || posX >= wfle->scenario.width || posY < 0 || posY >= wfle->scenario.height)
+				return true;
+			return false;
 		}
 
 		bool isInObstacle(double posX, double posY) const {

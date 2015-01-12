@@ -50,10 +50,8 @@ class GA3 {
 				if(best < population.front()) {  // Not elitism, just remember best layout across all iterations
 					best = population.front();
 				}
-//				if((wfle.getNumberOfEvaluation() - populationSize) % (50 * offspringCount) == 0) {
 				cout << "Fitness after " << wfle.getNumberOfEvaluation() << " evaluations: " << best.fitness;
 				cout << " (" << best.countInvalidTurbines() << " invalid turbines)" << endl;
-//				}
 
 //				Select parents and create offspring
 				deque<long> parentIndices = selectParents();
