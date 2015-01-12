@@ -7,14 +7,15 @@
 #include "GA_3_Individual.hpp"
 
 // TODO
-// best should not be a vector
 // Continue optimizing after 0 invalid turbines
-// Implement optional elitism
 
 class GA3 {
 	public:
 		GA3(KusiakLayoutEvaluator &evaluator, bool commaSelection, long populationSize, long offspringCount,
-		    long numberOfTurbines, double validityThreshold) : wfle(evaluator) {
+		    bool elitism, long numberOfTurbines, double validityThreshold) :
+			wfle(evaluator),
+			randomEngine(chrono::system_clock::now().time_since_epoch().count()),
+			best(&wfle, &randomEngine, numberOfTurbines, validityThreshold) {
 			if(commaSelection && offspringCount < populationSize) {
 				cerr << "Genetic Algorithm Instance: ERROR: comma selection requires offspringCount >= populationSize"
 				     << endl;
@@ -29,60 +30,63 @@ class GA3 {
 			this->commaSelection = commaSelection;
 			this->populationSize = populationSize;
 			this->offspringCount = offspringCount;
+			this->elitism = elitism;
 			this->numberOfTurbines = numberOfTurbines;
 			this->validityThreshold = validityThreshold;
-
-			long seed = chrono::system_clock::now().time_since_epoch().count();
-			randomEngine = default_random_engine(seed);
-			cout << "Genetic Algorithm Instance: Using seed " << seed << endl;
 
 			for(long l = 0; l < populationSize; ++l) {
 				population.push_back(Individual(&wfle, &randomEngine, numberOfTurbines, validityThreshold));
 			}
-			best.push_back(population.front());
+			best = population.front();
 		}
 
 		void run() {
 			while(wfle.getNumberOfEvaluation() + offspringCount <= 1000) {
+//				Evaluate population and perform environmental selection
 				evaluatePopulation();
 				while(long(population.size()) > populationSize) {
 					population.pop_back();
 				}
-				if(best.front() < population.front()) {  // Not elitism, just remember best layout across all iterations
-					best.front() = population.front();
+				if(best < population.front()) {  // Not elitism, just remember best layout across all iterations
+					best = population.front();
 				}
 //				if((wfle.getNumberOfEvaluation() - populationSize) % (50 * offspringCount) == 0) {
-				cout << "Fitness after " << wfle.getNumberOfEvaluation() << " evaluations: " << best.front().fitness;
-				cout << " (" << best.front().countInvalidTurbines() << " invalid turbines)" << endl;
+				cout << "Fitness after " << wfle.getNumberOfEvaluation() << " evaluations: " << best.fitness;
+				cout << " (" << best.countInvalidTurbines() << " invalid turbines)" << endl;
 //				}
 
+//				Select parents and create offspring
 				deque<long> parentIndices = selectParents();
 				deque<Individual> offspring = generateOffspring(parentIndices);
 
+//				Build new population
 				if(commaSelection) {
 					population.clear();
 				}
 				population.insert(population.end(), offspring.begin(), offspring.end());
+				if(elitism) {
+					population.push_front(best);
+				}
 			}
-			cout << "Fitness after " << wfle.getNumberOfEvaluation() << " evaluations: " << best.front().fitness;
-			cout << " (" << best.front().countInvalidTurbines() << " invalid turbines)" << endl;
+			cout << "Fitness after " << wfle.getNumberOfEvaluation() << " evaluations: " << best.fitness;
+			cout << " (" << best.countInvalidTurbines() << " invalid turbines)" << endl;
 		}
 		Matrix<double> getLayout() {
-			return best.front().layout;
+			return best.layout;
 		}
 
 	private:
-		bool commaSelection;
-		long populationSize;
-		long offspringCount;
-		deque<Individual> population;
-		deque<Individual> best;
-
 		long numberOfTurbines;
 		double validityThreshold;
 		KusiakLayoutEvaluator& wfle;
 
 		default_random_engine randomEngine;
+		bool commaSelection;
+		long populationSize;
+		long offspringCount;
+		bool elitism;
+		deque<Individual> population;
+		Individual best;
 
 		void evaluatePopulation() {
 			for(auto & individual : population) {
