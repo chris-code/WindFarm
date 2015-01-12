@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <vector>
+#include <deque>
 #include <chrono>
 #include <random>
 #include "eval/Matrix.hpp"
@@ -8,7 +8,6 @@
 
 // TODO
 // best should not be a vector
-// Store individuals in something other than vector
 // Continue optimizing after 0 invalid turbines
 // Implement optional elitism
 
@@ -40,7 +39,7 @@ class GA3 {
 			for(long l = 0; l < populationSize; ++l) {
 				population.push_back(Individual(&wfle, &randomEngine, numberOfTurbines, validityThreshold));
 			}
-			best.push_back(population[0]);
+			best.push_back(population.front());
 		}
 
 		void run() {
@@ -49,35 +48,35 @@ class GA3 {
 				while(long(population.size()) > populationSize) {
 					population.pop_back();
 				}
-				if(best[0] < population[0]) {  // Not elitism, just remember the best layout across all iterations
-					best[0] = population[0];
+				if(best.front() < population.front()) {  // Not elitism, just remember best layout across all iterations
+					best.front() = population.front();
 				}
-				if((wfle.getNumberOfEvaluation() - populationSize) % (50 * offspringCount) == 0) {
-					cout << "Fitness after " << wfle.getNumberOfEvaluation() << " evaluations: " << best[0].fitness;
-					cout << " (" << best[0].countInvalidTurbines() << " invalid turbines)" << endl;
-				}
+//				if((wfle.getNumberOfEvaluation() - populationSize) % (50 * offspringCount) == 0) {
+				cout << "Fitness after " << wfle.getNumberOfEvaluation() << " evaluations: " << best.front().fitness;
+				cout << " (" << best.front().countInvalidTurbines() << " invalid turbines)" << endl;
+//				}
 
-				vector<long> parentIndices = selectParents();
-				vector<Individual> offspring = generateOffspring(parentIndices);
+				deque<long> parentIndices = selectParents();
+				deque<Individual> offspring = generateOffspring(parentIndices);
 
 				if(commaSelection) {
 					population.clear();
 				}
 				population.insert(population.end(), offspring.begin(), offspring.end());
 			}
-			cout << "Fitness after " << wfle.getNumberOfEvaluation() << " evaluations: " << best[0].fitness;
-			cout << " (" << best[0].countInvalidTurbines() << " invalid turbines)" << endl;
+			cout << "Fitness after " << wfle.getNumberOfEvaluation() << " evaluations: " << best.front().fitness;
+			cout << " (" << best.front().countInvalidTurbines() << " invalid turbines)" << endl;
 		}
 		Matrix<double> getLayout() {
-			return best[0].layout;
+			return best.front().layout;
 		}
 
 	private:
 		bool commaSelection;
 		long populationSize;
 		long offspringCount;
-		vector<Individual> population;
-		vector<Individual> best; // FIXME this should not be a vector
+		deque<Individual> population;
+		deque<Individual> best;
 
 		long numberOfTurbines;
 		double validityThreshold;
@@ -100,10 +99,10 @@ class GA3 {
 			sort(population.rbegin(), population.rend());
 		}
 
-		vector<long> selectParents() {
+		deque<long> selectParents() {
 //			TODO tournament selection, maybe?
 			uniform_int_distribution<long> selector(1, (populationSize * (populationSize + 1)) / 2);
-			vector<long> parentIndices;
+			deque<long> parentIndices;
 			for(long p = 0; p < offspringCount; ++p) {
 				long randomValue = selector(randomEngine); //FIXME
 				long sum = 0;
@@ -111,16 +110,17 @@ class GA3 {
 					sum += populationSize - l;
 					if(randomValue <= sum) {
 						parentIndices.push_back(l);
+						break;
 					}
 				}
 			}
 			return parentIndices;
 		}
 
-		vector<Individual> generateOffspring(const vector<long> &parentIndices) {
-			vector<Individual> offspring;
+		deque<Individual> generateOffspring(const deque<long> &parentIndices) {
+			deque<Individual> offspring;
 			for(auto p : parentIndices) {
-				Individual i = Individual(population[p]);
+				Individual i = Individual(population.at(p));
 				i.mutate(); // This resets the fitness value
 				offspring.push_back(i);
 			}
