@@ -43,19 +43,29 @@ class Individual {
 			fitness = -1.0;
 
 			double sigma = 140.0;
-			normal_distribution<double> turbineOffset(0, sigma);
+			normal_distribution<double> turbineOffset(0, sigma); //TODO try uniform distribution
+			uniform_real_distribution<double> mutationChance(0.0, 1.0);
+			normal_distribution<double> turbineOffsetSmall(0, 0.5);
 			for(long t = 0; t < layout.rows; ++t) {
-				if(turbineFitnesses.get(t, 0) >= validityThreshold)
-					continue;
-
-				double newPosX = layout.get(t, 0) + turbineOffset(*randomEngine);
-				double newPosY = layout.get(t, 1) + turbineOffset(*randomEngine);
-				while(! isValidMutation(t, newPosX, newPosY)) {
-					newPosX = layout.get(t, 0) + turbineOffset(*randomEngine);
-					newPosY = layout.get(t, 1) + turbineOffset(*randomEngine);
+				if(turbineFitnesses.get(t, 0) < validityThreshold) {
+					double newPosX = layout.get(t, 0) + turbineOffset(*randomEngine);
+					double newPosY = layout.get(t, 1) + turbineOffset(*randomEngine);
+					while(! isValidMutation(t, newPosX, newPosY)) {
+						newPosX = layout.get(t, 0) + turbineOffset(*randomEngine);
+						newPosY = layout.get(t, 1) + turbineOffset(*randomEngine);
+					}
+					layout.set(t, 0, newPosX);
+					layout.set(t, 1, newPosY);
+				} else if(mutationChance(*randomEngine) <= 3.0 / layout.rows) {
+					double newPosX = layout.get(t, 0) + turbineOffsetSmall(*randomEngine);
+					double newPosY = layout.get(t, 1) + turbineOffsetSmall(*randomEngine);
+					while(! isValidMutation(t, newPosX, newPosY)) {
+						newPosX = layout.get(t, 0) + turbineOffsetSmall(*randomEngine);
+						newPosY = layout.get(t, 1) + turbineOffsetSmall(*randomEngine);
+					}
+					layout.set(t, 0, newPosX);
+					layout.set(t, 1, newPosY);
 				}
-				layout.set(t, 0, newPosX);
-				layout.set(t, 1, newPosY);
 			}
 		}
 
